@@ -19,7 +19,7 @@
 ####################################################################################################
 cmake_minimum_required( VERSION 3.10 )
 
-project( OpenSD VERSION 0.50 )
+project( OpenSD VERSION 0.51 )
 
 # Compiler settings
 set( CMAKE_CXX_STANDARD 20 )
