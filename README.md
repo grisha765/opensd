@@ -3,7 +3,6 @@ An open-source Linux userspace driver for Valve's Steam Deck hardware.
 
 [![](https://img.shields.io/badge/license-GPLv3-lightgray?style=for-the-badge)](https://choosealicense.com/licenses/gpl-3.0/) 
 [![](https://img.shields.io/badge/Written%20in-C%2B%2B-%23f34b7d?style=for-the-badge)]()
-
 [![](https://img.shields.io/badge/Version-0.51-blue?style=for-the-badge)]() 
 [![](https://img.shields.io/gitea/last-commit/OpenSD/OpenSD?gitea_url=https%3A%2F%2Fcodeberg.org&style=for-the-badge)]() 
 [![](https://img.shields.io/gitea/issues/open/OpenSD/OpenSD?gitea_url=https%3A%2F%2Fcodeberg.org&style=for-the-badge)]()
@@ -33,8 +32,8 @@ Development is still ongoing, so several of the features are still incomplete.
 - [ ]   Fully configurable motion controls.
 - [x]   Configurable radial deadzones.
 - [ ]   Full support for Force-Feedback / haptics.
-- [ ]   GUI configuration tool.
 - [ ]   CLI scripting tool.
+- [ ]   GUI configuration tool.
 - [ ]   Automatic and manual backlight control.
 - [ ]   Battery reporting
 - [x]   Install script
@@ -58,7 +57,7 @@ NOTE: A systemd user unit file is provided as an optional convienence. Absolutel
 <br>
 
 ## Getting started
-Check out the Getting Started section in the [online documentation](https://opensd.codeberg.page) for steps on getting, building, installing.
+Check out the [Getting Started](https://opensd.codeberg.page) section in the online documentation for steps on getting, building and installing OpenSD.
 
 For Arch/AUR users, a current git build of OpenSD is also available in the [Arch User Repository](https://aur.archlinux.org/packages/opensd-git).
 
