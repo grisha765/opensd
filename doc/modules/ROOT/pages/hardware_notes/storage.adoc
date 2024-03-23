@@ -1,0 +1,102 @@
+= Storage
+
+The Steam Deck gets a bit of praise for having removable storage, chiefly by being compared to Apple (a disgusting corporation that overtly hates your rights to own, modify or repair anything).  Yes, removable storage _is_ the right move here, but we should not be so ready to give high praise based on the norms set by the _worst_ corporations on earth.
+
+== Hardware
+....
+SSD:
+  Manufacturer:           Varies <1>
+  Model:                  Varies
+  Type:
+    64GB Model:           eMMC
+    256GB+ Model:         NVMe
+  Bus:                    PCIe gen3
+  Form Factor:            m.2 2230
+  Protection:             EMI shielding
+....
+
+....
+MicroSD:
+  Manufacturer:           O2 Micro
+  Model:                  SD/MMC Card Reader Controller <2>
+  Bus:                    PCIe
+  Driver:                 sdhci-pci
+  Bootable:               Yes
+....
+
+<1> SSD Brands seems to vary, probably due to supply issues, but they are all cheap and low-grade IMO.
+<2> I've read there were issues with this SD card controller in older kernels, but I haven't had any problems.
+
+'''
+
+== Devices
+./dev/
+....
+brw-rw----   1 root disk   179,   0 Nov 28 13:34 mmcblk0 <1>
+brw-rw----   1 root disk   259,   0 Dec  5 16:47 nvme0n1 <2>
+....
+<1> SD card reader
+<2> NVMe SSD
+
+'''
+
+== SteamOS Filesystems
+The default partition layout for SteamOS looks a bit like this:
+
+.fdisk
+....
+Disk model: KINGSTON OM3PDP3256B-A01
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: gpt
+Disk identifier: [redacted]
+
+Device            Start       End   Sectors   Size Type
+/dev/nvme0n1p1     2048    133119    131072    64M EFI System
+/dev/nvme0n1p2   133120    198655     65536    32M Microsoft basic data
+/dev/nvme0n1p3   198656    264191     65536    32M Microsoft basic data
+/dev/nvme0n1p4   264192  10749951  10485760     5G Linux root (x86-64)
+/dev/nvme0n1p5 10749952  21235711  10485760     5G Linux root (x86-64)
+/dev/nvme0n1p6 21235712  21759999    524288   256M Linux variable data
+/dev/nvme0n1p7 21760000  22284287    524288   256M Linux variable data
+/dev/nvme0n1p8 22284288 500118158 477833871 227.8G Linux home
+....
+
+.lsblk -f
+....
+NAME        FSTYPE FSVER LABEL  UUID                                 FSAVAIL FSUSE% MOUNTPOINTS
+nvme0n1                                                                             
+├─nvme0n1p1 vfat   FAT16 esp    [redacted]                                          
+├─nvme0n1p2 vfat   FAT16 efi    [redacted]                                          
+├─nvme0n1p3 vfat   FAT16 efi    [redacted]                                          
+├─nvme0n1p4 btrfs        rootfs [redacted]                              1.5G    65% /
+├─nvme0n1p5 btrfs        rootfs [redacted]                                          
+├─nvme0n1p6 ext4   1.0   var    [redacted]                            177.6M    15% /var
+├─nvme0n1p7 ext4   1.0   var    [redacted]                                          
+└─nvme0n1p8 ext4   1.0   home   [redacted]                              218G     3% /var/tmp
+                                                                                    /var/log
+                                                                                    /var/lib/systemd/coredump
+                                                                                    /var/lib/flatpak
+                                                                                    /var/lib/docker
+                                                                                    /var/cache/pacman
+                                                                                    /srv
+                                                                                    /root
+                                                                                    /opt
+                                                                                    /home
+....
+
+./etc/fstab
+....
+# <file system> <dir> <type> <options> <dump> <pass>
+# SteamOS partitions
+#/dev/disk/by-partsets/self/rootfs /       ext4    defaults                0       1
+#/dev/disk/by-partsets/self/var    /var    ext4    defaults                0       2
+/dev/disk/by-partsets/self/efi     /efi    vfat    defaults,nofail,umask=0077,x-systemd.automount,x-systemd.idle-timeout=1min 0       2
+/dev/disk/by-partsets/shared/esp   /esp    vfat    defaults,nofail,umask=0077,x-systemd.automount,x-systemd.idle-timeout=1min 0       2
+/dev/disk/by-partsets/shared/home  /home   ext4    defaults,nofail,x-systemd.growfs 0       2
+....
+
+Yeah, yuck.  Red flags here.  Btrfs just for compression I guess.  Umounted partitions.  No swap with a SMA.  Bad boot layout.  SMH my head...
+
+'''

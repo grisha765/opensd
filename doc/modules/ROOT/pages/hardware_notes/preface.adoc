@@ -1,0 +1,39 @@
+= Preface
+
+I'm a long-time Linux user, FOSS contributor, ethical computing warrior and half-assed engineer.  I took an interest in the Steam Deck for the same reason I take interest in most hardware:  The perennial challenge of "can I run Linux on it".
+
+The Steam Deck uses pretty unsurprising hardware if you follow the _Console Wars_ at all.  AMD has got it locked-in these days, but despite the success of the ubiquitous, well known and openly documented x86-family architecture, these gaming devices are _anything but open_.  Consoles have become little more than DRM-infested, hyper-branded, scaled-down versions of mainstream PC tech, that are so anti-ownership you can barely do anything with them, considering the actual capabilities.  Handheld consoles tend to be even worse at openness.
+
+It's been something of a hobby of mine to break those types of DRM and open up hardware.  Because if you're being forcefully locked out of it, you don't really own it.  And it's your right to _own_ your own devices.  But suddenly Valve shows up with a nice piece of modern hardware that doesn't do any of that mess, _and_ is built on free open-source software.
+
+Valve's approach to a handheld computer is refreshing for a few reasons:
+
+* There's no hardware DRM.
+* The bootloader is wide open and freely accessible.  Friendly, even.
+* The hardware is (mostly) pretty standard stuff.
+* It can run Linux!
+* It's _designed_ to run Linux!
+
+It's almost revolutionary.  Letting people actually control thier own software on consumer devices is almost unthinkable in our late-stage capitalist hellscape.  
+
+Of course they're not revolutionary...  I appreciate what Valve has contributed to certain FOSS projects, like Wine/Proton, DXVK, GPU drivers, etc., but they're not very good Linux citizens.  They rely on a lot of work from FOSS developers, but do a poor job of contributing upstream, if at all.  Valve doesn't publish open-source drivers for any of their hardware, like the Steam Deck, Steam Controller and Steam Link.  Nor will they even document their ABIs or implementations such that others could do that work for them.  They even do a pretty bad job of documenting thier own APIs.  I won't even get into my opinions on why Steam and SteamOS are bad at Linuxing.
+
+Anyway, as cool as the Steam Deck is, it's still not really open when Valve refuses to share critical hardware knowledge, even with the people who _own_ the hardware.  So they're basically nvidia, profiting off of FOSS, but refusing to follow FOSS principals.  *[torvalds_nvidia.jpg]*
+
+== Goals
+The main goal of mine was to write an https://codeburg.org/opensd/opensd[open source driver] for the gamepad on the Steam Deck because Valve purposefully locks you out of using your own hardware without running closed-source proprietary software *and* being signed into an anti-privacy online service.  I also wanted to share whatever little I might know since there's no official hardware documentation beyond basic product specs, and a few nice independent teardowns.
+
+It's not really the goal of this documentation to go into detail about hardware aspects that are already published or standard, but rather cover some of the gaps.  I'm also not planning on dumping or decompiling any firmware since it's not really necessary here.
+
+== Disclaimer
+I have no affiliation with Valve.  All the information here has been obtained through reverse engineering or published openly elsewhere.
+
+The following are notes which I've made in the process of installing my own clean OS environment, tinkering, and developing https://codeberg.org/opensd/opensd[OpenSD].  *I make no guarantee of the accuracy of any information in this document.*  There may also be hardware revisions and variations that I'm not aware of, as well as possible future changes.  This is just some stuff I've gleaned from my experience poking around inside my own Steam Deck.
+
+== Contributing
+If I get anything wrong, miss something, or you'd like to contribute your own findings, feel free to send a PR to the https://codeberg.org/opensd/opensd-docs[repo this documentation is hosted at].
+
+Cheers
+
+'''
+

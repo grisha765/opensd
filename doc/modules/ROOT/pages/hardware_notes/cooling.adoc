@@ -1,0 +1,23 @@
+= Cooling
+
+The Steam Deck uses a single low-profile blower fan to cool the entire unit.  It's placed adjacent to the motherboard and connected to the APU via a copper heatpipe.
+
+There's also an internal magnesium frame which functions as a heat spreader in addition to providing rigidity.
+
+== Hardware
+....
+Fan
+  Manufaturer:    Huaying 
+  Model:          BN5010S5H-N00P
+  Type:           Blower
+  Power:          5v DC @ 0.5a
+or
+  Manufacturer:   Delta
+  Model:          BSB0505LA-00
+  Type:           Blower
+  Power:          5v DC @ 0.42a
+....
+
+I've seen two different mfgs here, probably due to parts shortages.  From what little I've seen, the Huaying is noticibly quieter at higher speeds.
+
+'''

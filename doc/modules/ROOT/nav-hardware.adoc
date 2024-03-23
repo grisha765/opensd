@@ -1,0 +1,18 @@
+.Hardware Notes
+* xref:hardware_notes/preface.adoc[]
+* xref:hardware_notes/apu.adoc[]
+* xref:hardware_notes/display.adoc[]
+* xref:hardware_notes/audio.adoc[]
+* xref:hardware_notes/networking.adoc[]
+* xref:hardware_notes/storage.adoc[]
+* xref:hardware_notes/usb.adoc[]
+* xref:hardware_notes/bluetooth.adoc[]
+* xref:hardware_notes/input.adoc[]
+** xref:hardware_notes/gamepad.adoc[]
+** xref:hardware_notes/touchscreen.adoc[]
+** xref:hardware_notes/volume.adoc[]
+* xref:hardware_notes/haptics.adoc[]
+* xref:hardware_notes/battery.adoc[]
+* xref:hardware_notes/light_sensor.adoc[]
+* xref:hardware_notes/bootloader.adoc[]
+

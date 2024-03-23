@@ -1,0 +1,1 @@
+* xref:getting_started.adoc[]

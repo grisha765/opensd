@@ -1,0 +1,15 @@
+= Bootloader
+
+The bootloader on the Steam Deck is (thankfully) very open.  There are no encryption unlock procedures, lockouts, online codes, rights waivers, etc.  You can simply install whatever you want from from an EFI bootable SD card as if it were a desktop or SBC.  The bootloader is graphical, simple and easy to use.  It feels like it encourages you have full control over your own device, which is refreshing in the world of gaming hardware.
+
+Lets just hope they don't pull a Sony in a future firmware update.
+
+== Access
+To access the bootloader:
+
+. Turn off the Steam Deck
+. Press and hold the "Volume Down" button on top of the Steam Deck
+. Press the power button on the top of the Steam Deck
+. Release the "Volume Down" button when you see the graphic bootloader screen.
+
+'''

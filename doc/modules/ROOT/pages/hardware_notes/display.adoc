@@ -1,0 +1,91 @@
+= Display
+
+This screen is still a bit of a mystery since there's no apparent EDID or DDC information.  `read-edid` and `ddcutil` cant detect it, and I've looked through sysfs I2C devices and cant find much either.  Looking at the disassembled display casing, there aren't any clear indicators, nor are there any manufacurer indicators on the official replacement parts.  The touchscreen capacitive input sensor is made by FocalTech, but it's pretty common for LCD OEMs and touch overlay OEMs to be totally different companies.
+
+Really not sure who makes it, but it may be the least impressive part of the Steam Deck.  Colour reproduction is not good.  I -- and apparently a lot of other people -- get a ton of light bleed.  Solid background colours look like gradients.  Purple is probably the worst for me.  It's disappointing  the (newer) Nintendo Switch has a much nicer OLED.  Honestly, for a small touchscreen to use in an appliance, embedded project, mount in a wall for home automation, it's... okay.  For a $600+ USD gaming device, I had hoped for better.
+
+== Hardware
+....
+Touchscreen Display
+  Manufacturer:       Unknown (possibly FocalTech?)
+  Model:              Unknown
+  Size:               7" diagonal (151mm x 94mm)
+  Type:               IPS LCD
+  Native Resolution:  800x1280 (16:10)
+  Orientation:        Portrait / Vertical
+  Refresh Rate:       60hz
+....
+
+....
+Backlight Controller
+  Manufacturer:       O2Micro
+  Model:              OZ536
+  Type:               LED Driver
+....
+
+'''
+
+== Supported  Resolutions
+Reported modes:
+
+* 800x1280 (native)
+* 800x600
+* 640x480
+
+'''
+
+== Orientation
+Interestingly, Valve picked a vertically-oriented display and mounted it at a -90 degree rotation, so the top of the screen is at the left-hand side of the Steam Deck.  It appears that it uses a "landscape" / widescreen orientation for supported resolutions below the native resolution.
+
+It doesn't look like there's a way to set the rotation in hardware, since SteamOS itself calls kscreendoctor to have Plasma perform the rotation.
+
+When booting, you may notice the grub screen rotated ccw before the mode switches.
+
+'''
+
+== Touchscreen
+I cover the touchscreen input in its xref:./touchscreen.adoc[own section].
+
+'''
+
+== Xorg Configuration
+Xorg can easily handle the rotation transform needed to get the display to work in a landscape orientation.
+If you're going to run this in its native resolution, the screen needs to be rotatated in X (probably Wayland too, havent tested).  
+
+./etc/X11/xorg.conf.d/30-monitor.conf
+....
+Section "Monitor"
+    Identifier      "eDP-1"
+    Option          "Rotate" "right"
+EndSection
+....
+
+Now the touchscreen also needs the input to be transformed to match the new rotation.
+
+./etc/X11/xorg.conf.d/90-touchscreen.conf
+....
+Section "InputClass"
+    Identifier          "Coordinate Transformation Matrix"
+    MatchIsTouchscreen  "on"
+    MatchDevicePath     "/dev/input/event*"
+    MatchDriver         "libinput"
+    Option              "CalibrationMatrix" "0 1 0 -1 0 1 0 0 1"
+EndSection
+....
+
+'''
+
+== Wayland
+For Wayland, each compositor will have it's own configuration.
+
+=== Sway
+Add this line to your sway config
+
+.~/.config/sway/config
+....
+### Output configuration
+# Fix screen rotation
+output eDP-1 mode 800x1280 transform 90
+....
+
+'''

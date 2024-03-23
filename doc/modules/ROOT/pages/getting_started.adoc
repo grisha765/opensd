@@ -1,0 +1,101 @@
+= Getting Started
+
+== What is OpenSD?
+OpenSD is a highly-configurable userspace driver for the Steam Deck written in modern C++.  
+
+It aims to be lighweight, very fast and provide a way to fully utilize the hardware without running any closed-source, proprietary or anti-privacy software like Steam.
+
+If you're like me, you want to tinker with your hardware devices and build neat projects on them without needing to run any bloat.  As someone who builds and designs a lot of embedded systems, uses minimal Linux desktop envoronments and believes in https://en.wikipedia.org/wiki/Unix_philosophy[Unix Philosophy]: keeping things open, fast and small is paramount.
+
+At the time of writing, there is no way to utilize the gamepad portion (buttons, thumbsticks, gyros, etc.) of the Steam Deck without also having to run Steam, since Steam implements an unpublished, undocumented, closed-source userspace driver to make it all work.  This means signing into an online service to access basic hardware functionality on a device that _you own_.  As good as Valve has been about Linux support and contributing to open-source initiatives, they're not so good about keeping their hardware open, nor do they respect privacy as a human right.
+
+This goal of this software is to provide a better, fully open-source implementation; ultimately unlocking the hardware to be used freely and unencumbered any by proprietary requirements.
+
+'''
+
+== Requirements
+The code itself has very few dependencies other than the kernel.
+
+* Kernel 4.9+
+* GCC 8.0+ (for c++20 designated initializers)
+* cmake 3.10+
+
+Some of the hardware support for the Steam Deck is pretty recent, so using the most recent kernel available is recommended.
+
+'''
+
+== Getting OpenSD
+
+=== From the AUR
+A current git build is available in the Arch User Repository.  To install OpenSD this way, just use your favourite AUR helper.
+[source,shell]
+----
+$ yay -S opensd-git
+----
+
+By default, this will
+
+* Install a udev rule to give hardware access to the 'opensd' group
+* Reload udev rules
+* Create the *'opensd'* group and make the current user a member of that group.
+* For systemd users ONLY: A systemd user service file will be installed for convenience. This is optional and OpenSD does not rely on systemdisease in any way ;)
+
+NOTE:  Group changes will not take effect until after logout.
+
+'''
+
+=== From Source
+Getting and installing OpenSD from source is easy.
+
+==== Download
+The newest version of OpenSD can be downloaded using *git*.
+
+[source,shell]
+----
+$ git clone https://codeberg.org/opensd/opensd.git
+----
+
+'''
+
+==== Building
+OpenSD uses cmake so building is nice and simple.
+
+[source,shell]
+----
+mkdir build
+cd build
+cmake ..
+make
+----
+
+To configure build/install options, run this from the build directory:
+
+[source,shell]
+----
+ccmake ..
+----
+
+'''
+
+==== Installation
+Once you've successfully built OpenSD, just run
+
+[source,shell]
+----
+sudo make install
+----
+
+By default, this will
+
+* Install a udev rule to give hardware access to the 'opensd' group
+* Reload udev rules
+* Create the *'opensd'* group and make the current user a member of that group.
+* For systemd users ONLY: A systemd user service file will be installed for convenience. This is optional and OpenSD does not rely on systemdisease in any way ;)
+
+NOTE:  Group changes will not take effect until after logout.
+
+'''
+
+See the xref:./users_manual/running.adoc[User's Manual] for instuctions on running and configuring OpenSD.
+
+'''

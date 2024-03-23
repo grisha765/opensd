@@ -1,0 +1,64 @@
+= USB
+
+The Steam Deck has two USB controllers as part of the Van Gogh SoC package.  There's one external Type-C port on the top of the unit, next to the power button.  All charging and external (wired) devices use this single port.  The Steam Deck Dock provides charging and breakouts for multiple USB devices, wired ethernet and external displays through this port.
+
+== Hardware
+....
+USB:
+  Manufacturer:       AMD
+  Model:              Van Gogh SoC
+  Controllers:        2 USB 3.0
+  Physical Ports:     1 Type-C
+  Internal Ports:     none
+....
+
+NOTE:  There are no user-accessible internal USB ports.
+
+'''
+
+== Devices
+.lspci
+....
+04:00.3 USB controller: Advanced Micro Devices, Inc. [AMD] Device 162c
+04:00.4 USB controller: Advanced Micro Devices, Inc. [AMD] VanGogh USB1
+....
+
+.lsusb
+....
+Bus 004 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 003 Device 003: ID 13d3:3553 IMC Networks Bluetooth Radio
+Bus 003 Device 002: ID 28de:1205 Valve Software Steam Deck Controller
+Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+....
+
+Looking at the serial numbers, we can see which busses belong to which controllers
+
+.USB Controller #1 (0000:04:00.3)
+....
+Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+  iSerial                 1 0000:04:00.3
+Bus 001 Device 008: ID 3434:0160 Keychron Keychron Q6 <1>
+  iSerial                 0 
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+  iSerial                 1 0000:04:00.3
+....
+<1> This is plugged into the external USB Type-C port by itself.
+
+.USB Controller #2 (0000:04:00.4)
+....
+Bus 004 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+  iSerial                 1 0000:04:00.4
+Bus 003 Device 003: ID 13d3:3553 IMC Networks Bluetooth Radio <2>
+  iSerial                 3 [redacted]
+Bus 003 Device 002: ID 28de:1205 Valve Software Steam Deck Controller <2>
+  iSerial                 3 [redacted]
+Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+  iSerial                 1 0000:04:00.4
+....
+<2> Internal devices
+
+So we can see that the external port seems to have it's own dedicated USB3 controller, which is a *good idea* if you want to carry HID, ethernet and connect an external display like the Deck Dock does.
+
+'''

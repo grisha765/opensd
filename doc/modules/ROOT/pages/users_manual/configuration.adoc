@@ -1,0 +1,21 @@
+= Configuration
+
+OpenSD uses two types of configuration files.  The first type being the xref:./config_ini.adoc[Daemon Configuration], and the second type are gamepad xref:./profile_files.adoc[Profiles] which are loaded by the daemon.
+
+All files use an _ini-style_ format and are easily created or modified with any text editor.
+
+Since OpenSD is a _userspace_ daemon, configuration files are stored in `$XDG_CONFIG_HOME/opensd/` which, on most systems, will be `~/.config/opensd/`.  Gamepad profiles are stored in the `profile` subdirectory, (example: `~/.config/opensd/profiles/`).  *If the OpenSD user config directory does not exist, a new one will be created and populated with the default configuration files when the daemon is run.*
+
+NOTE: OpenSD follows the XDG specification, so environments which set / change `$XDG_HOME` or `$XDG_CONFIG_HOME` should behave correctly.  For the purposes of this documentation we'll refer to the *default* XDG paths for user configuration files (example: `~/.config/opensd/`).
+
+.Basic format rules:
+* Parsing is line-based and space delimited.
+* The files are broken into braced enclosed *sections* and *keys*.
+* Names of sections and keys are not *case-sensitive*, but _values_ can be, such as file names.
+* Sections are enclosed in square brackets  (example: `[SectionName]`)
+* Keys must be contained within a section.
+* Key assignment *must* be separated by whitespace.  (example: `key = value1 value2 value3`)
+* Comments are preceeded by a `#` or `;` at the beginning of the line.
+* Placing a value in quotes `"` treats the value as a literal string which allows whitespace.  (example: `key = "A string with spaces"`)
+
+'''

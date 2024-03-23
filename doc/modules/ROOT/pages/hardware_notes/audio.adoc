@@ -1,0 +1,430 @@
+= Audio
+
+This one has been a bit of a problem...
+
+Valve chose to use an audio chip (part of the Van Gogh SoC) that had no support before they began.  They've put patches into their *own* downstream kernel when they *should* have been focussing on getting mainline kernel support before anything -- or, controversially, just pick one of the *thousands* of perfectly functional and well supported audio devices that _already exist_.  But Valve still ended up with a ridiculous amount of audio problems.  The first preview units of the final design were demo'd back around the middle of 2021, when several of the drivers *had not even been submitted by the mfgs yet*.  As of December 2022, this is *still* a sore spot.  The mainline kernel has just very recently got support and it's still broken.
+
+During my testing under a clean Arch environment I was experiencing a number of issues.  Pipewire and pulseaudio would not recognise the sink.  Using the ALSA hardware device, I would only get audio out of the left speaker.  The device would lock up or drop out.  Those are also problems SteamOS users have experiencing too, apparently, which points to Valve (yet again) selling things that aren't finished and don't work.  I'd expect this of some obscure hardware manufacturer that won't acknowledge Linux even exists, but for a flagship Linux-only product, this reflects poorly on Valve since they've had 2+ years to get this working or pick different hardware.
+
+== Hardware
+....
+Audio
+  ACP5x:
+      Manufacturer:         AMD
+      Model:                ACP5x Audio Coprocessor
+      Package:              SoC (Van Gogh / Renoir)
+      Bus:                  PCIe
+      Driver:               acp5x-mach
+      Codecs:
+        (2x) CS35L41:
+          Manufacturer:         Cirrus Logic
+          Model:                CS35L41
+          Type:                 DSP + amplifier
+          Bus:                  i2c
+          Amp:                  Class D, 5.3W per channel @ 8ohms
+          Channels:             2
+          Sample Rates:         48000(?)
+          Supported formats:    S32_LE(?)
+          Connected to:         Internal speakers
+        (1x) NAU88L21:
+          Manufacturer:         Nuvoton
+          Model:                NAU88L21
+          Type:                 DSP + headphone amplifier
+          Bus:                  i2c
+          Amp:                  Class G, 28mW @ 32ohms
+          Channels:             2
+          Sample Rates:         8kHz to 192kHz
+          Supported Formats:    S32_LE(?)
+          Connected to:         Headphone jack + internal microphone
+....
+
+....
+Speakers:
+  Internal Speakers:
+    Manufacturer:       Unknown
+    Model:              LUX-F7A? <1>
+    Channels:           2ch / Stereo
+  External Speakers:
+    Analogue:           3.5mm stereo headphone jack
+    Wireless:           Bluetooth (aptX, SBC, LDAC)
+....
+<1> This is printed on the outer casing.  Can't find any reference material for this yet.
+
+....
+Microphones:
+  Internal Microphones:
+    Manufacturer:       Unknown
+    Model:              Unknown
+    Channels:           2ch / Stereo
+  External Microphones:
+    Analogue:           3.5mm stereo headset(?)
+....
+
+'''
+
+== Devices
+Playback devices:
+
+.aplay -l
+[%collapsible%open]
+====
+----
+**** List of PLAYBACK Hardware Devices ****
+card 0: Generic [HD-Audio Generic], device 3: HDMI 0 [HDMI 0]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 0: Generic [HD-Audio Generic], device 7: HDMI 1 [HDMI 1]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 0: Generic [HD-Audio Generic], device 8: HDMI 2 [HDMI 2]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 0: Generic [HD-Audio Generic], device 9: HDMI 3 [HDMI 3]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 1: acp5x [acp5x], device 0: Playback/Capture nau8821-hifi-0 []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 1: acp5x [acp5x], device 1: CS35L41 Stereo Playback multicodec-1 []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+----
+Card 1, Device 1 is for internal playback on the built-in speakers.
+====
+
+
+Recording devices:
+
+.arecord -l
+[%collapsible%open]
+====
+----
+**** List of CAPTURE Hardware Devices ****
+card 1: acp5x [acp5x], device 0: Playback/Capture nau8821-hifi-0 []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+----
+====
+
+The ACP5x is part of the Van Gogh SoC and includes separate codecs/amplifiers for internal speakers and headphones, which appear as separate devices of the same card under ALSA.
+
+The NAU88L21 device is a 2-channel headphone dsp / amplifier chip, which also includes 2-channel microphone input.  The CS35L41 device is actually a pair of CS35L41 mono codec / amplifiers used to drive the internal speakers.
+
+'''
+
+== Drivers
+.lsmod | grep snd
+[%collapsible%open]
+====
+kernel 6.0.9-arch1-1 #1 SMP PREEMPT_DYNAMIC Wed, 16 Nov 2022 17:01:17 +0000 x86_64 GNU/Linux
+----
+snd_soc_acp5x_mach     20480  0
+snd_acp5x_i2s          16384  2
+snd_acp5x_pcm_dma      16384  1
+snd_sof_amd_renoir     16384  0
+snd_sof_amd_acp        53248  1 snd_sof_amd_renoir
+snd_sof_pci            24576  1 snd_sof_amd_renoir
+snd_hda_codec_hdmi     86016  1
+snd_soc_cs35l41_spi    16384  2
+snd_sof               307200  3 snd_sof_amd_acp,snd_sof_pci,snd_sof_amd_renoir
+snd_soc_cs35l41        65536  1 snd_soc_cs35l41_spi
+snd_hda_intel          61440  0
+snd_sof_utils          20480  1 snd_sof
+snd_soc_wm_adsp        49152  1 snd_soc_cs35l41
+snd_intel_dspcfg       36864  2 snd_hda_intel,snd_sof
+snd_rpl_pci_acp6x      20480  0
+snd_acp_pci            16384  0
+cs_dsp                 73728  1 snd_soc_wm_adsp
+snd_intel_sdw_acpi     20480  1 snd_intel_dspcfg
+snd_soc_nau8821        57344  2 snd_soc_acp5x_mach
+snd_soc_cs35l41_lib    36864  2 snd_soc_cs35l41_spi,snd_soc_cs35l41
+snd_pci_acp6x          20480  0
+snd_hda_codec         188416  2 snd_hda_codec_hdmi,snd_hda_intel
+snd_pci_acp5x          20480  0
+snd_rn_pci_acp3x       24576  0
+snd_soc_core          393216  7 snd_acp5x_i2s,snd_soc_nau8821,snd_soc_wm_adsp,snd_sof,snd_acp5x_pcm_dma,snd_soc_cs35l41,snd_soc_acp5x_mach
+snd_hda_core          118784  3 snd_hda_codec_hdmi,snd_hda_intel,snd_hda_codec
+snd_acp_config         16384  3 snd_rn_pci_acp3x,snd_acp_pci,snd_sof_amd_renoir
+snd_compress           28672  2 snd_soc_wm_adsp,snd_soc_core
+snd_soc_acpi           16384  2 snd_acp_config,snd_sof_amd_renoir
+ac97_bus               16384  1 snd_soc_core
+snd_hwdep              16384  1 snd_hda_codec
+snd_pcm_dmaengine      16384  1 snd_soc_core
+snd_pci_acp3x          20480  0
+snd_pcm               172032  15 snd_sof_amd_acp,snd_soc_nau8821,snd_hda_codec_hdmi,snd_pci_acp6x,snd_hda_intel,snd_hda_codec,snd_sof,snd_acp5x_pcm_dma,snd_compress,snd_soc_core,snd_sof_utils,snd_hda_core,snd_soc_cs35l41,snd_soc_acp5x_mach,snd_pcm_dmaengine
+snd_timer              49152  1 snd_pcm
+snd                   131072  11 snd_hda_codec_hdmi,snd_hwdep,snd_hda_intel,snd_soc_wm_adsp,snd_hda_codec,snd_sof,snd_timer,snd_compress,snd_soc_core,snd_pcm,snd_soc_acp5x_mach
+soundcore              16384  1 snd
+----
+
+So on the vanilla / mainline 6.0.9 kernel, you can see the acp5x, nau8821 and cs35l41 drivers are present and loaded.
+====
+
+'''
+
+== Testing
+Tested using a clean Arch install from the terminal using tools from the `alsa-utils` package. Vanilla kernel 6.0.9, 6.0.12 and 6.1-rc8-mainline.  pipewire, wireplumber, pipewire-alsa, pipewire-pulse, pipewire-jack packages are all installed.
+
+Using the default pipewire ALSA sink
+[source,shell]
+----
+$ speaker-test -c2
+----
+
+I get no audio.  Pipewire / pulse do not seem to be able to see the hardware sink.
+
+If I specify the CS35L41 device
+[source,shell]
+----
+$ speaker-test -Dhw:1,1 -c2
+----
+
+I only get a left channel.  SteamOS users seems to have reported this on up-to-date official SteamOS (jupiter) as well.  Some people have apparently RMA'd their units because Valve couldn't resolve the issue through support channels.
+
+'''
+
+[#workarounds]
+== Fixes / Workarounds
+After building a whole bunch of kernels, I narrowed the above issues down to some missing ALSA UCM config files that Valve has *still not submitted*.  Someone created an unofficial mirror to where Valve has been illegally hiding modified open-source licensed code.  You can find it https://gitlab.com/evlaV/jupiter-hw-support/-/tree/master/usr/share/alsa/ucm2/conf.d/acp5x[here].  Yes, you may notice, Valve _is_ putting those in the wrong directory.
+
+Fortunately, a better UCM config has been submitted and reviewed for the ALSA Project, but has (as of 2022-12-12) not yet been merged or released.
+
+In the meantime you can fix this easily by just dropping in some files and rebooting.  I put up a https://gitlab.com/open-sd/acp5x-ucm-files[repo with these files and an install script], but I'll also document them here as they currently exist.
+
+NOTE:  The following works with kernel 6.1+
+
+NOTE:  These configurations are likely to change by the time they're released.  If newer versions of these files exist, it is recommended to use the newer ones.
+
+Create the following files
+
+./usr/share/alsa/ucm2/AMD/acp5x/acp5x.conf
+[%collapsible%open]
+====
+....
+Syntax 6
+
+Comment "Vangogh internal card"
+
+#
+# Macro CtlRemapMonoToStereoVolSw - join two mono controls into one stereo
+#
+# Arguments:
+#   Type - Volume or Switch
+#   Stereo - Name of the stereo control to be created
+#   MonoL - Name of the mono control to be used as Left channel
+#   MonoR - Name of the mono control to be used as Right channel
+#
+DefineMacro.CtlRemapMonoToStereoVolSw {
+	LibraryConfig.remap.Config {
+		ctl.default.map."name='${var:__Stereo} ${var:__Type}'" {
+			"name='${var:__MonoL} ${var:__Type}'".vindex.0 0
+			"name='${var:__MonoR} ${var:__Type}'".vindex.1 0
+		}
+	}
+}
+
+#
+# Currently restricted to Steam Deck hardware.
+#
+If.jupiter {
+	Condition {
+		Type String
+		String1 "Jupiter"
+		String2 "${sys:devices/virtual/dmi/id/product_name}"
+	}
+	True {
+		SectionUseCase."HiFi" {
+			File "/AMD/acp5x/HiFi.conf"
+			Comment "Default"
+		}
+
+		BootSequence [
+			cset "name='Digital Playback Volume' 252"
+			cset "name='Left Analog PCM Volume' 17"
+			cset "name='Right Analog PCM Volume' 17"
+			cset "name='Left Digital PCM Volume' 870"
+			cset "name='Right Digital PCM Volume' 870"
+			cset "name='Headphone Volume' 2"
+			cset "name='Digital Playback Volume' 192"
+			cset "name='Mic Volume' 252"
+			cset "name='Frontend PGA Volume' 27"
+		]
+
+		Include.card-init.File "/lib/card-init.conf"
+		Include.ctl-remap.File "/lib/ctl-remap.conf"
+	}
+}
+....
+====
+
+and
+
+./usr/share/alsa/ucm2/AMD/acp5x/HiFi.conf
+[%collapsible%open]
+====
+....
+Macro.apcmremap.CtlRemapMonoToStereoVolSw {
+	Type Volume
+	Stereo "Analog PCM"
+	MonoL "Left Analog PCM"
+	MonoR "Right Analog PCM"
+}
+
+Macro.dpcmremap.CtlRemapMonoToStereoVolSw {
+	Type Volume
+	Stereo "Digital PCM"
+	MonoL "Left Digital PCM"
+	MonoR "Right Digital PCM"
+}
+
+Macro.swremap.CtlRemapMonoToStereoVolSw {
+	Type Switch
+	Stereo "DSP1 Preload"
+	MonoL "Left DSP1 Preload"
+	MonoR "Right DSP1 Preload"
+}
+
+SectionVerb {
+	EnableSequence [
+		disdevall ""
+		cset "name='ADC Phase Switch' 1"
+		cset "name='Left DSP RX1 Source' ASPRX1"
+		cset "name='Right DSP RX1 Source' ASPRX2"
+		cset "name='Left DSP RX2 Source' ASPRX1"
+		cset "name='Right DSP RX2 Source' ASPRX2"
+		cset "name='Left PCM Source' DSP"
+		cset "name='Right PCM Source' DSP"
+	]
+
+	DisableSequence [
+		cset "name='Left DSP Booted' 0"
+		cset "name='Right DSP Booted' 0"
+		cset "name='Left DSP1 Preload Switch' 0"
+		cset "name='Right DSP1 Preload Switch' 0"
+	]
+
+	Value {
+		TQ "HiFi"
+	}
+}
+
+SectionDevice."Headphones" {
+	Comment "Headphones"
+
+	ConflictingDevice [
+		"Speaker"
+	]
+
+	EnableSequence [
+		cset "name='Headphone Switch' on"
+	]
+
+	DisableSequence [
+		cset "name='Headphone Switch' off"
+	]
+
+	Value {
+		PlaybackPriority 200
+		PlaybackPCM "hw:${CardId},0"
+		JackControl "Headphone Jack"
+		PlaybackMixerElem "Headphone"
+		PlaybackMasterElem "Digital Playback"
+	}
+}
+
+SectionDevice."Speaker" {
+	Comment "Speaker"
+
+	ConflictingDevice [
+		"Headphones"
+	]
+
+	EnableSequence [
+		cset "name='Left DSP1 Preload Switch' 1"
+		cset "name='Right DSP1 Preload Switch' 1"
+	]
+
+	DisableSequence [
+		cset "name='Left DSP1 Preload Switch' 0"
+		cset "name='Right DSP1 Preload Switch' 0"
+	]
+
+	Value {
+		PlaybackPriority 100
+		PlaybackPCM "hw:${CardId},1"
+		PlaybackMixerElem "Digital PCM"
+		PlaybackMasterElem "Analog PCM"
+		PlaybackVolume "Digital PCM Volume"
+		PlaybackSwitch "DSP1 Preload Switch"
+	}
+}
+
+SectionDevice."Mic" {
+	Comment "Internal Microphone"
+
+	ConflictingDevice [
+		"Headset"
+	]
+
+	EnableSequence [
+		cset "name='Int Mic Switch' on"
+		cset "name='DMIC Enable Switch' on"
+	]
+
+	DisableSequence [
+		cset "name='Int Mic Switch' off"
+		cset "name='DMIC Enable Switch' off"
+	]
+
+	Value {
+		CapturePriority 200
+		CapturePCM "hw:${CardId},0"
+		CaptureMixerElem "Int Mic"
+		CaptureVolume "Mic Volume"
+		CaptureSwitch "Int Mic Switch"
+	}
+}
+
+SectionDevice."Headset" {
+	Comment "Headset Microphone"
+
+	ConflictingDevice [
+		"Mic"
+	]
+
+	EnableSequence [
+		cset "name='Headset Mic Switch' on"
+	]
+
+	DisableSequence [
+		cset "name='Headset Mic Switch' off"
+	]
+
+	Value {
+		CapturePriority 300
+		CapturePCM "hw:${CardId},0"
+		CaptureMixerElem "Headset Mic"
+		CaptureVolume "Mic Volume"
+		CaptureSwitch "Headset Mic Switch"
+		JackControl "Headset Mic Jack"
+	}
+}
+....
+====
+
+Now create a symlink to the config
+
+[source,shell]
+----
+$ sudo mkdir -p /usr/share/alsa/ucm2/conf.d/acp5x/
+
+$ cd /usr/share/alsa/ucm2/conf.d/acp5x/
+
+$ sudo ln -s ../../AMD/acp5x/acp5x.conf
+----
+
+Now reboot and hopefully your audio should work now.
+
+Once these changes go mainline, they should get overwritten by your package manager during normal updates.
+
+'''

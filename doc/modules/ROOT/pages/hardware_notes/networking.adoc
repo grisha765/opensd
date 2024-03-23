@@ -1,0 +1,40 @@
+= Networking
+
+This has been a bit quirky in my experience.  Valve picked a cheap NIC that is known to have bad Linux drivers, and it shows with all the issues people have been having with it.  Realtek is not good at giving a damn either.  Realtek also has no product page (surprise, surprise) for this chip either, so I'm not sure about the details.  Best of all, they soldered the stupid thing onto the board!
+
+I'm sure that, in time, the drivers will get fixed. In my experience I found that disabling *Power Management* was a reasonable workaround in the meantime.
+
+== Hardware
+....
+NIC:
+  Manufacturer:       Realtek
+  Model:              RTL8822CE
+  Type:               Wireless
+  Standards:          IEEE 802.11a/b/g/n/ac
+  Bus:                PCIe + USB3
+  Driver:             rtw88
+  Antenna:            Dual internal via SMI
+....
+
+'''
+
+== Bugs / workarounds
+A common problem for this chip / driver is constant signal drop-outs, which is attributed to the link power management.  You can disable this feature to get a much more reliable connection.
+
+Edit this file as shown
+
+./etc/modprobe.d/rtl8822ce.conf
+....
+options rtw_pci disable_aspm=1
+....
+
+then reboot.
+
+During the initial install process, you can also disable it using
+
+[source,shell]
+----
+# iwconfig wlan0 power off
+----
+
+'''

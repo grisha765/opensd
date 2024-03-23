@@ -1,0 +1,96 @@
+= Battery
+
+Looks like a custom battery made up of asymmetric cells and designed to fit in as much space as the Steam Deck could spare.  Sits behind the LCD display and surrounds the fan on two sides.
+
+== Hardware
+....
+Battery:
+  Manufacturer:           Getac Technology (Kunshan) Company, Limited.
+  Model:                  F7A
+  Type:                   Lithium Polymer
+  Cells:                  2 (L-shaped configuration)
+  Voltage:                7.7v
+  Capacity:               5200mAh (40.04Wh)
+....
+
+....
+Charge Controller:
+  Manufacturer:           Maxim Integrated 
+  Model:                  MAX77961
+  Type:                   Li-Ion Battery Charger
+  Interface:              USB Type-C
+....
+
+'''
+
+== Devices
+
+=== ACPI battery device
+
+[source,shell]
+----
+$ cat /sys/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0C0A:00/power_supply/BAT1/uevent
+
+POWER_SUPPLY_NAME=BAT1
+POWER_SUPPLY_TYPE=Battery
+POWER_SUPPLY_STATUS=Full
+POWER_SUPPLY_PRESENT=1
+POWER_SUPPLY_TECHNOLOGY=Unknown
+POWER_SUPPLY_CYCLE_COUNT=0
+POWER_SUPPLY_VOLTAGE_MIN_DESIGN=7700000 <1>
+POWER_SUPPLY_VOLTAGE_NOW=8687000
+POWER_SUPPLY_CURRENT_NOW=22000
+POWER_SUPPLY_CHARGE_FULL_DESIGN=5200000
+POWER_SUPPLY_CHARGE_FULL=5480000
+POWER_SUPPLY_CHARGE_NOW=5383000
+POWER_SUPPLY_CAPACITY=98
+POWER_SUPPLY_CAPACITY_LEVEL=Full
+POWER_SUPPLY_MODEL_NAME=GETAC
+POWER_SUPPLY_MANUFACTURER= 
+POWER_SUPPLY_SERIAL_NUMBER=[REDACTED]
+----
+<1> 7.7v
+
+Battery level can be read as total percentage from:
+[source,shell]
+----
+$ cat /sys/class/power_supply/BAT1/capacity
+
+93
+----
+
+And charging status can be read from:
+
+[source,shell]
+----
+$ cat /sys/class/power_supply/BAT1/status
+
+Discharging
+----
+
+Status appears as `Unknown` when plugged in.  Not sure if this is part of an overcharge prevention mechanism or if it's actually charging.
+
+'''
+
+=== ACPI charging device
+
+[source,shell]
+----
+$ cat /sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0003:00/power_supply/ACAD/uevent
+
+POWER_SUPPLY_NAME=ACAD
+POWER_SUPPLY_TYPE=Mains
+POWER_SUPPLY_ONLINE=1
+----
+
+You can read the connection state of the external power supply using:
+
+[source,shell]
+----
+$ cat /sys/devices/power_supply/ACAD/online
+
+1
+----
+`1` is plugged in, `0` is unplugged.
+
+'''

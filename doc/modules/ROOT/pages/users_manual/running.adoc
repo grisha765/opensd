@@ -1,0 +1,47 @@
+[#running_opensd]
+= Running OpenSD
+
+OpenSD is intended to be run as a user-level service, but it can be run from a terminal like most other Linux programs.  This can be useful for troubleshooting or debugging purposes since every message is logged to stdout.
+
+OpenSD requires access to the *uinput* and *hidraw* subsystems.  To enable this access, OpenSD provides a *udev rule* which will be installed when installing OpenSD.  In this rule, access is allowed to both subsystem for members of the *opensd* group, which is also created on install.  Any user that intends to run OpenSD must be a member of this group, or otherwise have R/W access to these device nodes.  After installing for the first time it will be necessary to log out in order for the user's group changes to take effect.
+
+For more information see the xref:./troubleshooting.adoc[Troubleshooting] section.
+
+WARNING: Do NOT run the OpenSD daemon as root, either directly or as a system service.
+
+'''
+
+[#run_from_terminal]
+== From a terminal
+[source,shell]
+----
+$ opensdd
+----
+Will start an instance of the daemon and log all output to the terminal.  The default log level is `WARN`.
+
+Or to see debug messages run:
+[source,shell]
+----
+$ opensdd -l debug
+----
+
+A full list of command line options can be shown using:
+[source,shell]
+----
+$ opensdd --help
+----
+
+'''
+
+[#run_as_service]
+== As a User-Level Service
+For *systemd* users, a service file is provided which can be run as a user-level service that will automatically start on log-in.
+
+To run the OpenSD daemon as a service on user log-in:
+[source,shell]
+----
+$ systemctl --user enable opensd
+$ systemctl --user start opensd
+----
+
+'''

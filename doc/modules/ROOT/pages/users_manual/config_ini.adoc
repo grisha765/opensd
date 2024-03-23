@@ -1,0 +1,49 @@
+= Daemon Configuration File (config.ini)
+
+This single file contains a small group of options that pertain to the daemon itself.  The default configuration file for the daemon can be found at `~/.config/opensd/config.ini`.  An unmodified copy of this file will be installed to `/usr/local/share/opensd/config/config.ini` or `/usr/share/opensd/config/config.ini`.
+
+An xref:./example_config_ini.adoc[example config.ini] can be found in this documentation if you want to see what a complete file might look like.
+
+[#daemoncfg_file_section_daemon]
+== [Daemon] Section
+NOTE: This section is required.
+
+[#daemoncfg_file_section_daemon_profile]
+=== Profile
+This tells the daemon which profile to load when it starts up.  Profiles are *only* loaded from the `~./config/opensd/profiles/` directory, so only specify the filename here.  OpenSD also has other methods for loading profiles once the daemon is running, this setting is only for the default profile you wish to use.
+
+Format:
+[source,ini]
+----
+Profile = <filename>
+----
+
+Example:
+[source,ini]
+----
+[Daemon]
+Profile = default.profile
+----
+
+'''
+
+[#daemoncfg_file_section_daemon_allowclients]
+=== AllowClients
+NOTE: This feature is not yet fully implemented.
+
+This setting enables or disables the use of the CLI and GUI utilities which connect to the daemon.  If set to false, the daemon will not listen for clients.  This can be useful if you want to "lock down" a configuration so it cannot be changed while it is running.  The default is `true`.
+
+Format:
+[source,ini]
+----
+AllowClients = <true | false>
+----
+
+Example:
+[source,ini]
+----
+[Daemon]
+AllowClients = true
+----
+
+'''

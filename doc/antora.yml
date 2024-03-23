@@ -1,0 +1,17 @@
+name: opensd-docs
+title: OpenSD
+version: latest
+start_page: getting_started.adoc
+asciidoc:
+  attributes:
+    source-language: asciidoc@
+    doctype: book
+    max-width: 100%
+    page-toclevels: 5@
+    tabsize: 4
+nav:
+- modules/ROOT/nav-start.adoc
+- modules/ROOT/nav-manual.adoc
+- modules/ROOT/nav-guides.adoc
+- modules/ROOT/nav-hardware.adoc
+

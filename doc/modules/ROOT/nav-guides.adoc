@@ -1,0 +1,2 @@
+.Guides
+* xref:guides/arch_install_guide.adoc[]

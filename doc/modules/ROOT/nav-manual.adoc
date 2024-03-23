@@ -1,0 +1,9 @@
+.Users Manual
+* xref:users_manual/running.adoc[]
+* xref:users_manual/configuration.adoc[]
+** xref:users_manual/config_ini.adoc[]
+** xref:users_manual/profile_files.adoc[]
+** xref:users_manual/example_config_ini.adoc[]
+** xref:users_manual/example_profile.adoc[]
+* xref:users_manual/input_types.adoc[]
+* xref:users_manual/troubleshooting.adoc[]

@@ -1,0 +1,19 @@
+site:
+  title: OpenSD Documentation
+  url: https://opensd.codeberg.page
+  start_page: opensd-docs::getting_started.adoc
+content:
+  sources:
+  - url: .
+    start_path: doc
+    edit_url: false
+asciidoc:
+  attributes:
+    toc: left
+ui:
+  bundle:
+    url: ./antora/default-ui-bundle.zip
+    snapshot: true
+  supplemental_files: ./antora/custom
+  
+

@@ -1,0 +1,30 @@
+= Haptics
+
+The Steam Deck does not use the "traditional" motor-driven unbalanced mass (ERM) force-feedback method the can be found in many console gamepads.  Alternatively, it uses electromagnetic coils that drive a small mass, embedded in each touchpad.  These coils work a bit like voice coils in a speaker but are not able to push much air around, so they don't make much audible sound. Instead, you can feel the waveform vibrations they produce, mostly when touching the pads directly.  The Sony DualSense (PS5 controller) incorporates both ERM and voice coil drivers.
+
+Advantages to this type of mechanical feedback are lower power consumption and much faster response.  Disadvantages are that it produces an extremely weak kind of shock and rumble effect compared to larger mass-drivers.
+
+Traditional force-feedback events that games use have to be translated to a bit, which should be handled by the driver.  I wasn't able to find many games which could produce standard force-feedback signals through the official driver Steam implements, despite Steam emulating a gamepad device which supports force-feedback.  At the time of writing, it apprears to be a "beta feature".
+
+== Hardware
+....
+  Haptic device
+    Manufacturer:           Unknown
+    Model:                  Unknown
+    Type:                   (2x) Vibro-tactile / voice coil
+    Mass size:              Unknown
+    Location:               L + R (inside each touchpad)
+    Bus:                    Integrated into USB gamepad HID
+....
+
+'''
+
+== Devices
+As you would probably expect, these are built into the `Steam Deck Controller` USB HID.
+
+'''
+
+== Reports
+Controlling these haptic devices is done though HID feature reports on the gamepad interface.  Documentation for these reports can be found in the xref:./gamepad.adoc[Gamepad] section.
+
+'''

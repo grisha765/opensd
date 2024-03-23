@@ -1,0 +1,24 @@
+# Woodpecker CI build for OpenSD doc pages
+
+steps:
+  - name: antora-build
+    image: antora/antora
+    commands:
+      - apk add git openssh-client
+      - git config --global --add safe.directory /woodpecker/src/codeberg.org/OpenSD/opensd-docs/_build
+      - git config --global user.name "Woodpecker CI"
+      - git config --global user.email "woodpeckerci@codeberg"
+      - mkdir -p ~/.ssh/
+      - chmod 700 ~/.ssh
+      - echo "$KNOWN_HOST" >> ~/.ssh/known_hosts
+      - echo "$DEPLOY_KEY" > ~/.ssh/id_ed25519
+      - chmod 600 ~/.ssh/*
+      - git clone git@codeberg.org:OpenSD/pages.git _build
+      - chmod -R +w _build
+      - antora --fetch --to-dir=_build antora-playbook.yml
+      - cd _build
+      - git add .
+      - git commit -m "CI Build"
+      - git push
+      - rm ~/.ssh/*
+    secrets: [ DEPLOY_KEY, KNOWN_HOST ]

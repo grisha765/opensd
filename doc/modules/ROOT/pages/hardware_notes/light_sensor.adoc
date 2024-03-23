@@ -1,0 +1,57 @@
+= Ambient Light Sensor
+
+The Steam Deck has an integrated light sensor located in the center of the top edge of the display.  This can be used to automatically adjust the backlight brightness based on ambient light.  Strangely, there appear to be two different ones when you scan the I2C bus.
+
+== Hardware
+....
+Ambient Light Sensor:
+  Manufacturer:         Texas Instruments
+  Model:                OPT3001
+  Type:                 Optical Sensor
+  Bus:                  I2C
+  Driver:               None
+....
+
+and
+
+....
+Ambient Light Sensor:
+  Manufacturer:         LiteOn
+  Model:                LTR-F216A
+  Type:                 Optical Sensor
+  Bus:                  I2C
+  Driver:               ltrf216a
+....
+
+The TI chip doesn't seem to have a driver(?) and I haven't decided to poke around for raw I2C data yet, so I'll just go over the LiteOn chip for now.
+
+'''
+
+== Devices
+You can find the LTR-F216A in the sysfs tree:
+
+[source,shell]
+----
+$ ls /sys/bus/i2c/devices/i2c-PRP0001:01/iio:device0
+
+-rw-r--r-- 1 root root 4.0K Nov 28 13:34 in_illuminance_input
+-rw-r--r-- 1 root root 4.0K Dec  5 19:42 in_illuminance_integration_time
+-r--r--r-- 1 root root 4.0K Dec  5 19:42 integration_time_available
+-r--r--r-- 1 root root 4.0K Nov 28 13:34 name
+drwxr-xr-x 2 root root    0 Dec  5 17:36 power
+lrwxrwxrwx 1 root root    0 Dec  5 19:47 subsystem -> ../../../../../../bus/iio
+-rw-r--r-- 1 root root 4.0K Nov 28 13:34 uevent
+----
+
+'''
+
+== Reading Values
+The lux value can be read from sysfs:
+[source,shell]
+----
+$ cat /sys/bus/i2c/devices/i2c-PRP0001:01/iio:device0/in_illuminance_input
+
+72
+----
+
+'''

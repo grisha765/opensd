@@ -1,0 +1,45 @@
+= Input
+
+The Steam Deck has a few different built-in input devices.  Each device is covered in its own sub-section.
+
+== Overview
+The main input categories covered are xref:./gamepad.adoc[Gamepad], xref:./touchscreen.adoc[Touchscreen] and xref:./volume.adoc[Volume].
+
+The ACPI power and headphone jack sensor input are probably not worth going into in this document.
+
+....
+/dev/input/event0:  Power Button <5>
+/dev/input/event1:  Lid Switch
+/dev/input/event2:  Power Button
+/dev/input/event3:  AT Translated Set 2 keyboard <4>
+/dev/input/event4:  Video Bus
+/dev/input/event5:  Valve Software Steam Deck Controller <1>
+/dev/input/event6:  Valve Software Steam Deck Controller <2>
+/dev/input/event7:  acp5x Headset Jack <6>
+/dev/input/event8:  FTS3528:00 2808:1015 <3>
+/dev/input/event9:  HD-Audio Generic HDMI/DP,pcm=3
+/dev/input/event10: HD-Audio Generic HDMI/DP,pcm=7
+/dev/input/event11: HD-Audio Generic HDMI/DP,pcm=8
+/dev/input/event12: HD-Audio Generic HDMI/DP,pcm=9
+/dev/input/event13: PC Speaker
+/dev/input/event14: FTS3528:00 2808:1015 UNKNOWN
+....
+
+There are a few notable event nodes here:
+
+<1> "Lizard Mode" gamepad-emulated keyboard
+<2> "Lizard Mode" gamepad-emulated mouse
+<3> Touchscreen input
+<4> Volume buttons
+<5> ACPI power button
+<6> Headphone jack sensor
+
+Note: The actual Steam Deck gamepad does not have a device driver, so only the emulated keyboard / mouse devices appear here.
+
+'''
+
+== Devices
+
+*See the following input subsections of this documentation for details about individual devices.*
+
+'''

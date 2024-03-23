@@ -1,0 +1,11 @@
+= Example config.ini
+
+[source,ini]
+----
+[Daemon]
+# The gamepad profile to be loaded on startup
+Profile = default.profile
+
+# Allow client connections from CLI and GUI configuration tools
+AllowClients = true
+----

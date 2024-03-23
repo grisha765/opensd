@@ -1,0 +1,194 @@
+/* Custom UI colors */
+:root 
+{
+    --header-bg-color: #111;
+    --footer-bg-color: #111;
+    --page-bg-color: #2a2a2a;
+    --nav-bg-color: #1c1c1c;
+    --toolbar-bg-color: #1c1c1c;
+    --nav-comp-bg-color: #444;
+    --admonition-bg-color: #444;
+    --inline-code-bg-color: #444;
+    --codeblock-bg-color: #1c1c1c;
+    --panel-border-color: #111;
+    --break-line-color: #111;
+  
+    --dim-text-color: #777;
+    --normal-text-color: #ccc;
+    --bright-text-color: #fff;
+
+    --normal-hl-color: #c01565;
+    --bright-hl-color: #f0006a;
+}
+
+/* Fix Antora UI to use the whole damn screen */
+@media screen and (min-width: 1024px) 
+{
+    .doc 
+    {
+        max-width: none;
+    }
+}
+
+body 
+{
+    background: var(--page-bg-color);
+    color: var(--normal-text-color);
+}
+
+
+/* Header / navigation bar */
+.navbar 
+{
+    background: var(--header-bg-color);
+}
+
+/* Nav menu */
+.nav, .nav-panel-explore
+{
+    background-color: var(--nav-bg-color);
+}
+
+.nav-menu h3.title
+{
+    color: var(--bright-text-color);
+}
+
+.nav-panel-explore .context
+{
+    color: var(--bright-text-color);
+    -webkit-box-shadow: 0 -1px 0 var(--panel-border-color);
+    box-shadow: 0 -1px 0 var(--panel-border-color);
+}
+
+.nav-panel-explore .components 
+{
+    background-color: var(--nav-comp-bg-color);
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+.is-current-page>.nav-link, .is-current-page>.nav-text 
+{
+    color: var(--bright-hl-color);
+}
+
+/* Bar above page content */
+.toolbar 
+{
+    background-color: var(--toolbar-bg-color);
+    -webkit-box-shadow: 0 1px 0 var(--panel-border-color);
+    box-shadow: 0 1px 0 var(--panel-border-color);
+}
+
+.toolbar a
+{
+    color: var(--normal-text-color);
+}
+
+.home-link svg path
+{
+    fill: var(--normal-text-color);
+}
+
+/* Table of contents / sidebar */
+aside.toc.sidebar 
+{
+    -ms-flex-preferred-size: 14rem;
+    flex-basis: 14rem;
+}
+
+.toc .toc-menu ul 
+{
+    font-size: 0.9rem;
+}
+
+.toc-menu
+{
+    color: var(--normal-text-color);
+}
+
+.toc .toc-menu h3
+{
+    color: var(--bright-text-color);
+}
+
+.toc .toc-menu a 
+{
+    border-left: 3px solid var(--normal-text-color);
+}
+
+.toc .toc-menu a.is-active 
+{
+    border-left-color: var(--bright-hl-color);
+    color: var(--normal-hl-color);
+}
+
+.toc .toc-menu a:hover 
+{
+    color: var(--bright-text-color);
+}
+
+/* Document content */
+.doc 
+{
+    max-width: none;
+    color: var(--normal-text-color);
+}
+
+.doc a
+{
+    color: var(--normal-hl-color);
+}
+
+.doc a:hover 
+{
+    color: var(--bright-hl-color);
+}
+
+.doc hr
+{
+    border: dotted var(--break-line-color);
+    border-width: 2px 0 0;
+    height: 80px;
+}
+
+.doc h1, .doc h2, .doc h3, .doc h4, .doc h5, .doc h6
+{
+    color: var(--bright-text-color);
+}
+
+.doc .admonitionblock .icon 
+{
+    border-radius: 0px;
+}
+
+.doc .admonitionblock td.content
+{
+    background-color: var(--admonition-bg-color);
+}
+
+.doc .listingblock pre:not(.highlight), .doc .literalblock pre, .doc pre.highlight code
+{
+    background-color: var(--codeblock-bg-color);
+    -webkit-box-shadow: inset 0 0 1.75px #000;
+    box-shadow: inset 0 0 1.75px #000;
+}
+
+.doc .colist > table code, .doc p code, .doc thead code 
+{
+    color: var(--bright-text-color);
+    background-color: var(--inline-code-bg-color);
+}
+
+/* Footer */
+footer.footer 
+{
+    background-color: var(--footer-bg-color);
+    padding: .1rem;
+}
+
+footer a
+{
+    color: #fff;
+}

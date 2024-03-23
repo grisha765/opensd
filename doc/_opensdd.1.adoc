@@ -1,0 +1,57 @@
+= opensdd(1)
+:doctype: manpage
+:manmanual: opensdd
+:mansource: opensdd
+:man-linkstyle: pass:[blue R < >]
+
+== Name
+opensdd - A highly-configurable open-source userspace driver daemon for Valve's Steam Deck hardware.
+
+== SYNOPSIS
+opensdd [options]
+
+== DESCRIPTION
+OpenSD is a highly-configurable userspace driver for the Steam Deck written in modern C++.
+It aims to be lighweight, very fast and provide a way to fully utilize the hardware without running any bloated, closed-source, proprietary or anti-privacy malware like Steam.
+
+== OPTIONS
+*-h    --help*:: Display help screen.
+*-v    --version*:: Output version number and exit.
+*-l    --log-level <log level>*:: Set minumum logging level. Valid options are: *verbose*, *debug*, *info*, *warn*, *error*.  (Default: *warn*)
+
+== FILES
+${XDG_CONFIG_HOME:-$HOME/.config}/opensd/config.ini:: User configuration for the OpenSD daemon.
+${XDG_CONFIG_HOME:-$HOME/.config}/opensd/profiles/*.profile:: User-configurable gamepad profiles.
+
+:includedir: ./modules/ROOT/pages/users_manual
+include::{includedir}/configuration.adoc[leveloffset=1]
+include::{includedir}/config_ini.adoc[leveloffset=2]
+include::{includedir}/profile_files.adoc[leveloffset=2]
+include::{includedir}/input_types.adoc[leveloffset=2]
+:leveloffset: 0
+
+== EXAMPLES
+OpenSD comes with a default main config and several default profiles.
+If installed, they should be located in /usr/share/opensd/config and /usr/share/opensd/profiles on most systems.
+When OpenSD is run, these files will be copied into the users ${XDG_CONFIG_HOME:-$HOME/.config}/opensd directory if not already present.
+
+include::{includedir}/example_config_ini.adoc[leveloffset=2]
+include::{includedir}/example_profile.adoc[leveloffset=2]
+:leveloffset: 0
+
+== PROJECT HOME
+The offical home of this project is at https://codeberg.org/opensd/opensd
+Please use this git repository for all bug reports, feature requests and other issues.
+
+== OTHER DOCUMENTATION
+OpenSD includes a prettier and more comprehensive HTML user manual in its distribution.  If installed, it usually be should be located at /usr/share/doc/opensd/users_manual.html
+
+An online version of the user's manual can also be found at  https://opensd.codeberg.page
+The source for all this documentation can also be found at https://codeberg.org/opensd/opensd-docs
+
+== COPYING
+Copyright (C) 2022-2024 Daniel Nguyen   evilichi@disroot.org
+
+OpenSD is licensed under the GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.

@@ -1,0 +1,30 @@
+= OpenSD User's Manual
+:max-width: 100%
+:toc: left
+:toclevels: 5
+:includedir: ./modules/ROOT/pages/users_manual
+:leveloffset: +1
+
+include::{includedir}/running.adoc[]
+<<<
+
+include::{includedir}/configuration.adoc[]
+<<<
+
+include::{includedir}/config_ini.adoc[]
+<<<
+
+include::{includedir}/profile_files.adoc[]
+<<<
+
+include::{includedir}/input_types.adoc[]
+<<<
+
+include::{includedir}/troubleshooting.adoc[]
+<<<
+
+include::{includedir}/example_config_ini.adoc[]
+<<<
+
+include::{includedir}/example_profile.adoc[]
+<<<
