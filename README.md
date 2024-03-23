@@ -1,7 +1,7 @@
 # OpenSD Documentation
 
-[![](https://img.shields.io/gitea/last-commit/OpenSD/opensd-docs?gitea_url=https%3A%2F%2Fcodeberg.org&style=for-the-badge)]() [![](https://img.shields.io/gitea/issues/open/OpenSD/opensd-docs?gitea_url=https%3A%2F%2Fcodeberg.org&style=for-the-badge)]()
-
+[![](https://img.shields.io/gitea/last-commit/OpenSD/opensd-docs?gitea_url=https%3A%2F%2Fcodeberg.org&style=for-the-badge)]() [![](https://img.shields.io/gitea/issues/open/OpenSD/opensd-docs?gitea_url=https%3A%2F%2Fcodeberg.org&style=for-the-badge)]() 
+[![status-badge](https://ci.codeberg.org/api/badges/13188/status.svg)]()
 
 
 ## About
@@ -18,10 +18,15 @@ Pre-built offline versions of the HTML documentation and man pages are included 
 You can also build the man pages and HTML documentation yourself, if you prefer.
 
 Requirements:
- - Asciidoctor
+ - Antora or Asciidoctor
  - gzip
 
-There is a simple build script located in the root directory of this repo.  Just run that and the compiled documentation will be placed in the *build* subdirectory.
+Asciidoc will generate a single HTML file user manual.  There is a simple build script located in the root directory of this repo.  Just run that and the compiled documentation will be placed in the *build* subdirectory.
+
+Antora will generate a full static HTML site from the all documentation.  To build with Antora, run:
+```
+$ antora --fetch --to-dir=build antora-playbook.yml
+```
 
 <br>
 
