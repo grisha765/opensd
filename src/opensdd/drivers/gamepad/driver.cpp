@@ -1043,31 +1043,6 @@ void Drivers::Gamepad::Driver::ThreadedLizardHandler()
 
 
 
-void Drivers::Gamepad::Driver::Run()
-{
-    // Init
-    mRunning    = true;
-    mLizardMode = false;
-
-    // Run this function as a separate thread
-    mLizHandlerThread = std::thread( &Drivers::Gamepad::Driver::ThreadedLizardHandler, this );
-
-    // Loop while driver is running
-    gLog.Write( Log::DEBUG, FUNC_NAME, "Gamepad driver is now running..." );
-    while (mRunning)
-    {
-        Poll();
-
-        // Polling interval is about 4ms so we can sleep a little
-        usleep( 250 );
-    }
-
-    // Rejoin threads after driver exits
-    mLizHandlerThread.join();
-}
-
-
-
 int Drivers::Gamepad::Driver::SetLizardMode( bool enabled )
 {
     int                     result;
