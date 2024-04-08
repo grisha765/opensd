@@ -1,15 +1,18 @@
 # OpenSD Documentation changelog
 
-## [v1.12]  2024/04/08
-### Changed
+## 2024/04/08
+### Added
  - Updated Antora theme with new codeberg repo URLs
+ - Added [Touchpads] section in user's manual
+ - Brought up-to-date with changes in OpenSD v0.51
 
-## [v1.11]  2024/03/19
+### Changed
+ - Removed confusing documentation versioning system that is out-of-step with OpenSD version.  Using dates for opensd-docs changelog now and tags for OpenSD version reference.
+
+
+## 2024/03/19
 ### Changed
   - Fixed a couple incorrect urls
-
-## [v1.10]  2024/03/19
-### Added
   - Changelog created for opensd-docs
   
 ### Changed
@@ -30,19 +33,23 @@
   - Still more to clean up, but this should be good enough for the moment.
   - There's a been a kernel driver for a while now (that Valve did NOT write or provide documentation for, but PAID to take credit for), so I doubt anyone actually cares.
 
-## [~v1.00-v1.09] ????
-### Notes
-  - Was not tracking changes to documentation very well
 
-## [~v1.00] 2022/09/23
+## 2023/??/??
+### Notes
+  - Was not tracking changes to documentation very well for a while
+
+
+## 2022/09/23
 ### Added
   - OpenSD documentation first published
 
-## [~v0.10] 2022/07/01
+
+## 2022/07/01
   - Full access to hardware
   - OpenSD development beings
   - OpenSD documentation beings
 
-## [~v0.01] 2022/01/??
+
+## 2022/01/??
   - Limited access to pre-release hardware
   - Initial hardware documentation begins

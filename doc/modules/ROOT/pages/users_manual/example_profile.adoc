@@ -3,44 +3,75 @@
 [source,ini]
 ----
 [Profile]
-Name            = Example Profile
-Description     = Just an example profile to show basic use
+Name        = "Default OpenSD Profile"
+Description = "A basic configuration that should work for most games and provide a few extras."
+
 
 [Features]
-ForceFeedback      = true
-MotionDevice       = true
-MouseDevice        = true
-LizardMode         = false
-StickFiltering     = true
-TrackpadFiltering  = true
+ForceFeedback       = true
+MotionDevice        = true
+MouseDevice         = true
+LizardMode          = false
+StickFiltering      = true
+TrackpadFiltering   = true
+
+
+[DeviceInfo]
+Gamepad     = 0xDEAD 0xBEEF 0x0100 "OpenSD Gamepad Device"
+Motion      = 0xDEAD 0xD00D 0x0100 "OpenSD Motion Control Device"
+Mouse       = 0xDEAD 0xF00D 0x0100 "OpenSD Mouse Device"
+
 
 [Deadzones]
-LStick    = 0.1
-RStick    = 0.1
-LPad      = 0
-RPad      = 0
-LTrigg    = 0
-RTrigg    = 0
+LStick      = 0.1
+RStick      = 0.1
+LPad        = 0
+RPad        = 0
+LTrigg      = 0
+RTrigg      = 0
+
 
 [GamepadAxes]
-ABS_HAT0X    = -1        1
-ABS_HAT0Y    = -1        1
-ABS_X        = -32767    32767
-ABS_Y        = -32767    32767
-ABS_RX       = -32767    32767
-ABS_RY       = -32767    32767
-ABS_Z        = 0         32767
-ABS_RZ       = 0         32767
+#-----------------------------------------------------------
+# Axis            Min       Max         Fuzz    Resolution
+#-----------------------------------------------------------
+ABS_HAT0X       = -1        1
+ABS_HAT0Y       = -1        1
+ABS_X           = -32767    32767
+ABS_Y           = -32767    32767
+ABS_RX          = -32767    32767
+ABS_RY          = -32767    32767
+ABS_Z           = 0         32767
+ABS_RZ          = 0         32767
+
 
 [MotionAxes]
-ABS_X        = -32767    32767
-ABS_Y        = -32767    32767
-ABS_Z        = -32767    32767
-ABS_RX       = -32767    32767
-ABS_RY       = -32767    32767
-ABS_RZ       = -32767    32767
+#-----------------------------------------------------------
+# Axis            Min       Max         Fuzz    Resolution
+#-----------------------------------------------------------
+ABS_X           = -32767    32767
+ABS_Y           = -32767    32767
+ABS_Z           = -32767    32767
+ABS_RX          = -32767    32767
+ABS_RY          = -32767    32767
+ABS_RZ          = -32767    32767
+
+
+[Touchpads]
+#---------------------------------------
+# Axis                x         y
+#---------------------------------------
+LPadSensitivity     = 1.0       1.0
+RPadSensitivity     = 1.0       1.0
+LPadDecay           = 0.05      0.05
+RPadDecay           = 0.05      0.05
+
 
 [Bindings]
+#-----------------------------------------------------------
+# Input             BindType    Mapping     +/-/scale
+#-----------------------------------------------------------
+# Directional Pad
 DpadUp              = Gamepad   ABS_HAT0Y   -
 DpadDown            = Gamepad   ABS_HAT0Y   +
 DpadLeft            = Gamepad   ABS_HAT0X   -
@@ -63,7 +94,7 @@ R5                  = None
 Menu                = Gamepad   BTN_START
 Options             = Gamepad   BTN_SELECT
 Steam               = Gamepad   BTN_MODE
-QuickAccess         = Command   true        0   rofi -show drun
+QuickAccess         = Mouse     BTN_RIGHT
 # Triggers
 LTrigg              = Gamepad   ABS_Z       +
 RTrigg              = Gamepad   ABS_RZ      +
@@ -86,10 +117,11 @@ LPadUp              = None
 LPadDown            = None
 LPadLeft            = None
 LPadRight           = None
+LPadTouch           = None
 LPadRelX            = None
 LPadRelY            = None
 LPadTouch           = None
-LPadPress           = Mouse     BTN_LEFT
+LPadPress           = None
 LPadForce           = None
 LPadPressQuadUp     = None
 LPadPressQuadDown   = None
@@ -117,10 +149,11 @@ RPadUp              = None
 RPadDown            = None
 RPadLeft            = None
 RPadRight           = None
+RPadTouch           = None
 RPadRelX            = Mouse     REL_X
 RPadRelY            = Mouse     REL_Y
 RPadTouch           = None
-RPadPress           = Mouse     BTN_RIGHT
+RPadPress           = Mouse     BTN_LEFT
 RPadForce           = None
 RPadPressQuadUp     = None
 RPadPressQuadDown   = None

@@ -219,9 +219,9 @@ Example:
 [Source,ini]
 ----
 [DeviceInfo]
-Gamepad     = 0xDEAD 0xBEEF 0x0001 "OpenSD Gamepad Device"
-Motion      = 0xDEAD 0xBEEF 0x0001 "OpenSD Motion Control Device"
-Mouse       = 0xC475 0xF00D 0x0101 "OpenSD Mouse / Trackpad Device"
+Gamepad     = 0xDEAD 0xBEEF 0x0100 "OpenSD Gamepad Device"
+Motion      = 0xDEAD 0xD00D 0x0100 "OpenSD Motion Control Device"
+Mouse       = 0xDEAD 0xF00D 0x0100 "OpenSD Mouse / Trackpad Device"
 ----
 
 NOTE:  Some software may also perform gamepad detection based on button and axis configuration.  Axis settings can also be configured in the <<prof_section_gamepadaxes>> and <<prof_section_motionaxes>> for this very purpose.
@@ -327,6 +327,54 @@ ABS_RZ          = -32767    32767
 ----
 
 NOTE: Motion controls are not yet fully implemented.
+
+'''
+
+[#prof_section_touchpads]
+== [Touchpads] Section
+=== Touchpad Sensitivity
+When the touchpad is used for relative axes, the sensitivity of the X and Y axes can be adjusted for each pad.  This axis movement is multiplied by the specified value, so values less than 1.0 will result in a slower rate of movement.  A value of 1.0 represents 100% of default sensitvity.  A value of 0.5 would be 50% slower than the default.
+
+While it is possible to set the scale of individual relative axes for each binding, that method has low precision due to the nature of integer math.  Adjusting the pad sensitivity here will probably give you much finer-grain control.  The two methods can also be combined, with the REL_ axis scale being calulated after the pad sensitivity.
+
+Format:
+[source,ini]
+----
+pad_sens = <x_sens> <y_sens>
+----
+* `pad_sens`:  Left or right pad sensitivity.  Can be `LPadSensitivity` or `RPadSensitivity`.
+* `x_sens`:  A floating point value representing the sensitivity of the X axis.
+* `y_sens`:  A floating point value representing the sensitivity of the Y axis.
+
+Example:
+[source,ini]
+----
+[Touchpads]
+LPadSensitivity     = 1.0       1.0
+RPadSensitivity     = 1.0       1.0
+----
+
+=== Touchpad Inertia Decay
+When used as relative axes, the touchpad motion vectors have intertia.  This intertia decays each USB frame until it becomes zero.  These settings allow you to configure the rate of inertial decay.  The gamepad USB device polls at fixed(?) 250Hz so it can fall off rather quickly even with very small values.
+
+A value of 0 means no decay (frictionless).  A value of 1.0 will effectively disable inertia.  When using a trackpad as a pointer device, a value of 0.05 (5% decay per frame) is recommended.  Values are clamped from 0 to 1.0.
+
+Format:
+[source,ini]
+----
+pad_decay = <x_decay> <y_decay>
+----
+* `pad_decay`:  Left or right pad inertia decay.  Can be `LPadDecay` or `RPadDecay`.
+* `x_decay`:  A floating point value between 0 and 1.0 representing the inertial decay of the X axis.
+* `y_decay`:  A floating point value between 0 and 1.0 representing the inertial decay of the Y axis.
+
+Example:
+[source,ini]
+----
+[Touchpads]
+LPadDecay       = 0.05      0.05
+RPadDecay       = 0.05      0.05
+----
 
 '''
 
@@ -551,4 +599,3 @@ L5      = Profile   left_hand_mouse.profile
 ----
 
 '''
-
