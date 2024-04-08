@@ -1,5 +1,9 @@
 # OpenSD Documentation changelog
 
+## [v1.12]  2024/04/08
+### Changed
+ - Updated Antora theme with new codeberg repo URLs
+
 ## [v1.11]  2024/03/19
 ### Changed
   - Fixed a couple incorrect urls

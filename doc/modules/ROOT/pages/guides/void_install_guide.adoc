@@ -1,0 +1,848 @@
+= Void Linux Install Guide for a Bullshit-Free Steam Deck (2024)
+
+
+
+== Disclaimer
+This guide is provided without any guarantee, warranty or liability.  The author takes no responsibility for anyone choosing to follow this guide.  Please read the guide fully beforehand and if you are not comfortable with the skill level of this guide, please do not attempt to follow it.
+
+I do not believe it's possible to brick your Steam Deck, but it's not my responsibility if that does somehow occur.  You have been warned.
+
+'''
+
+== Requirements
+There's a good chance that if you're interested in running a bloat-free Void install on a Steam Deck, you can probably write this guide yourself.
+So, who is this for?  Fuck knows.  Maybe you're void-curious.  Or looking for a way to become an even more rarified unix-hobo on your journey to Plan 9.
+
+*What you need:*
+- Some basic Linux knowledge
+- A Steam Deck
+- A 2GB or larger microSD card
+- A microSD card writer
+- Wireless network access
+- A USB-C keyboard
+
+'''
+
+== Step 1: Create Boot Media
+
+Download the x86_64 Void live image from [here](https://voidlinux.org/download/).
+
+You could write the installation image to a microSD card using your favourite tool.  But we're sending you to the Unix gulag this time, so fire up your terminal.
+
+Slide your totally average size microSD card gently into the loving caress of the microSD slot.
+
+[source,shell]
+----
+$ lsblk
+----
+
+....
+NAME               MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINTS
+sda                  8:0    0  9000G  0 disk  <------- This is your OS drive, don't overwrite it ;)
+├─sda1               8:1    0   550M  0 part  /boot/efi
+└─sda2               8:2    0  9000G  0 part  
+  └─hideyplace     254:0    0  9000G  0 crypt 
+    ├─voidvg-swap  254:1    0    16G  0 lvm   [SWAP]
+    └─voidvg-root  254:2    0  8984G  0 lvm   /
+sde                  8:16   1  59.5G  0 disk  <------- "64"GB microSD card
+....
+
+if your microSD card is *sde* then your device path is `/dev/sde`.
+Be very careful not to overwrite your operating system drive or you will have a very bad day.
+If your microSD card is already mounted, you'll need to unmount it first using `mount -u /dev/<your_microSD_device>`, then ask youself, "Why am I automounting?" and take a long walk.
+
+[source,shell]
+----
+$ sudo dd if=void-live-x86_64-<numbers>-base.iso of=/dev/<your_microsd_device> bs=4M && sync
+----
+
+That may take a few minutes.  If you're a Gamer, take this time to contemplate how a lifetime of playing mass-murder simulators has probably affected your view of humanity.
+
+Once that's done, go ahead and remove your microSD.
+
+'''
+
+== Step 2: Booty
+
+1. First, make sure your Steam Deck is powered off, and the battery is *fully charged*.
+2. Plug in your USB-C keyboard into the USB port on the Steam Deck next to the power button.
+3. Insert your microSD card into the microSD port on the bottom-right of the deck
+4. Hold the `Volume Down` button on the top of the deck and press the `power` button on the top.
+5. You should hear a beep and be taken to a GUI menu with several options.  You can navigate using the DPAD or keyboard arrow keys.
+6. From the `Boot Manager`, find the microSD device.  It should say something like EFI SD/MMC Card.
+
+If the the SD boot device card doesn't show up, it was probably written incorrectly or might be corrupt.
+
+Select the SD/MMC device.  Boot it pressing the `(A)` button or `Enter` on the keyboard.
+
+Grub should pop up and the screen will probably be rotated -90 degrees.  Press `(A)` again to select the first option, or just wait.
+
+Wait a few seconds for the boot complete and you should be taken to a login prompt.
+
+Login with
+----
+void-live login: anon
+password: voidlinux
+----
+
+'''
+
+== Step 3: Wifi
+
+This process will need to download a bunch of stuff, so we need to connect to a wireless network right away.
+
+To list the available wireless LAN adapters, type:
+[source,shell]
+----
+# iwconfig
+----
+
+Your wireless adapter should show up as `wlan0`.
+
+
+Valve picked the RTL8822CE, which was known to have a broken, buggy and poorly supported driver.  Knowing that Realtek refused to care, they went ahead and *soldered* it on to the mainboard, rather than use an m.2 in case the user actually cared about having a quality wireless NIC.
+
+We're going to need to disable power management to keep the connection from dropping out constantly.
+
+[source,shell]
+----
+# iwconfig wlan0 power off
+----
+
+Then type
+[source,shell]
+----
+# iwconfig
+----
+It should now display `Power Management: off`.
+
+NOTE: Disabling power management like this is not persistent across boots.  We will need to set it as a driver option later on in these steps.
+
+Now we need to connect to our access point through the iwctl shell.
+[source,shell]
+----
+# iwctl
+----
+
+. You will see a new prompt: `[iwd]# `
+. Type `device list` and make sure it shows our wireless device as `wlan0`
+. Type `station wlan0 scan off` (this seems to keep the connection stable, but toggle it if necessary)
+. Type `station wlan0 get-networks` to get a list of available wireless access points by SSID.
+. Find your access point name (SSID)  (if your network is not showing up, try turning **scan on** like in step 4, then off again)
+. Type `station wlan0 connect <YOUR_SSID>`
+. Enter your wireless password when prompted.
+. type `quit` when done.
+
+Now you should be back at a shell prompt again.  Test that your network is working by pinging something.
+[source,shell]
+----
+# ping archlinux.org
+----
+
+If you get a reply, you should be good.
+
+'''
+
+== Step 4:  (Re)Partition the Internal Storage
+Here we bid our fond farewell to SteamOS and wipe the SSD, and prepare our new Arch install.
+
+To get a list of storage devices, type:
+[source,shell]
+----
+# lsblk
+----
+
+The NVMe storage we want should be listed as `nvme0n1` with several partitions.
+
+If yours shows up as expected, type 
+[source,shell]
+----
+# fdisk /dev/nvme0n1
+----
+
+This will bring up our disk partition tool.  You can type `m` and press `Enter` to show the help screen at any time.  What we're going to do is delete *all* the existing partitions, then create 3 new ones.  This part can be a little intimidating for unfamiliar users.  If you make a mistake and don't know how to fix it, just type `q` and press `Enter` to quit without saving.  Then start this section over.
+
+. Type `p` and press `Enter` to print a list of all partitions.  IIRC there were 7(?) but may change with firmware versions.
+. Type `d` and press `Enter` `Enter` to delete the last partition.  Repeat this until all partitions have been deleted.
+. Type `p` and press `Enter`.  Verify there are no partitions left on the drive.
+. Type `n` and press `Enter` to create a our FIRST partition.
+.. At `Partition number:` Press `Enter` for first partition.
+.. At `First sector:` Press `Enter` for default.
+.. At `Last sector:` Type `+1G` and press `Enter`.  This will create a 1GB partition for our EFI boot.
+.. If prompted to remove signature, press `y` then `Enter`
+.. Press `t` and `Enter` to set partition type.
+.. First partition should automatically be selected.
+.. At `Partition type or alias:` Type `1` and press `Enter` to set the type to EFI System.
+. Type `n` and press `Enter` to create a our SECOND partition.
+.. At `Partition number:` Press `Enter` for partition 2.
+.. At `First sector:` Press `Enter` for default.
+.. At `Last sector:` Type `+16G` and press `Enter`.  This will create a 16GB swap partition.
+.. If prompted to remove signature, press `y` then `Enter`
+.. Press `t` and `Enter` to set partition type.
+.. At `Select partition:` Type `2` and press `Enter`.
+.. At `Partition type or alias:` Type `19` and press `Enter` to set the type to Linux Swap.
+. Type `n` and press `Enter` to create a our THIRD partition.
+.. At `Partition number:` Press `Enter` for partition 3.
+.. At `First sector:` Press `Enter` for default.
+.. At `Last sector:` Press `Enter` to use all the remaining space.  This will be our Linux partition.
+.. If prompted to remove signature, press `y` then `Enter`
+.. Press `t` and `Enter` to set partition type.
+.. At `Select partition:` Type `3` and press `Enter`.
+.. At `Partition type or alias:` Type `20` and press `Enter` to set the type to Linux filesystem.
+. Type `p` and press `Enter` to print out the new partition table.  It should look like this:
++
+----
+Disk /dev/nvme0n1: 238.47 GiB, 256060514304 bytes, 500118192 sectors <1>
+Disk model: KINGSTON OM3PDP3256B-A01  <1>
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: gpt
+Disk identifier: <Disk UUID>
+
+Device            Start       End   Sectors   Size Type
+/dev/nvme0n1p1     2048   2099199   2097152     1G EFI System
+/dev/nvme0n1p2  2099200  35653631  33554432    16G Linux swap
+/dev/nvme0n1p3 35653632 500117503 464463872 221.5G Linux filesystem  <2>
+----
+<1> These lines will probably differ depending on Steam Deck model and parts availability.
+<2> Available space will depend on model.
++
+. If everything is correct, type `w` and press `Enter` to write partition table and exit.
+
+
+'''
+
+== Step 5:  Create Filesystem
+Once the partitions are created we need to format them.
+
+Now we need to format our EFI boot partition to FAT32. Type:
+[source,shell]
+----
+# mkfs.fat -F32 /dev/nvme0n1p1
+----
+
+Format our swap partition:
+[source,shell]
+----
+# mkswap /dev/nvme0n1p2
+----
+
+Now format our Linux partition to ext4:
+[source,shell]
+----
+# mkfs.ext4 /dev/nvme0n1p3
+----
+
+''''
+
+== Step 5:  Mount Partitions
+Now we need to mount our partitions in order to install Linux on them.
+
+Mount our partition where Linux will be installed.  Type:
+[source,shell]
+----
+# mount /dev/nvme0n1p3 /mnt
+----
+
+Set up our swap space.  (don't skip this step since we will export these settings)
+[source,shell]
+----
+# swapon /dev/nvme0n1p2
+----
+
+Create a mount point for the EFI partition:
+[source,shell]
+----
+# mkdir -p /mnt/boot/efi
+----
+
+Now mount the EFI partition:
+----
+# mount /dev/nvme0n1p1 /mnt/boot/efi
+----
+
+'''
+
+== Step 6:  Install Linux Base
+Now we have the NVME Linux partition mounted at /mnt now, so we need to install some basic packages to get a working very minimal system.
+
+Download and install these packages to the NVME:
+
+NOTE: For the purposes of this guide, I'm going to use `micro` for our terminal editor.  If you prefer using a different terminal editor for these steps, install it now by adding it to the next line.
+
+[source,shell]
+----
+# pacstrap /mnt base linux linux-firmware amd-ucode networkmanager wireless_tools sudo micro
+----
+This will take a few minutes, so just wait for everything to install.
+
+Now, to create our list of filesystems that will be mounted at boot, type:
+[source,shell]
+----
+# genfstab -U /mnt >> /mnt/etc/fstab
+----
+
+'''
+
+== Step 7:  Configure base system
+We need to enter a *chroot* environment for our new system.  This will treat the specified directory as the new root directory.
+[source,shell]
+----
+# arch-chroot /mnt
+----
+
+=== Configure Time Zone
+To configure the time zone, we need to symlink to the appropriate timezone file.  The list of timezone files is in `/usr/share/zoneinfo/`.  For example, if you were in Los Angeles the path would be `/usr/share/zoneinfo/America/Los_Angeles`.
+[source,shell]
+----
+# ln -sf /usr/share/zoneinfo/<region>/<city> /etc/localtime
+----
+
+Now set the hardware clock:
+[source,shell]
+----
+# hwclock --systohc
+----
+
+=== Set Locale
+Edit the available locales by uncommenting lines in this file.  Type:
+[source,shell]
+----
+# micro /etc/locale.gen
+----
+
+Find the locale you want, let's assume US English, so scroll down to find the line that says `en_US.UTF-8 UTF-8` and delete the `#` at the beginning.  If needed or desired, you can select a different language, but do use the UTF-8 version.  Multiple locales can be enabled.
+Press `CTRL-s` to save the file, then `CTRL-q` to quit the editor.
+
+Now Generate the selected locale(s):
+[source,shell]
+----
+# locale-gen
+----
+
+Now we need to set our language:
+[source,shell]
+----
+# micro /etc/locale.conf
+----
+
+This file will be empty.  We need to add one line which will look like `LANG=<language selected in previous step>`.  So, for example, if you chose US English you would need to enter `LANG=en_US.UTF-8` and press `Enter`.  Now save the file with `CTRL-s` and then `CTRL-q` to quit.
+
+'''
+
+=== Hostname
+[source,shell]
+----
+# micro /etc/hostname
+----
+
+This file will also be empty, just type a hostname in a single line and press enter.  The hostname must be one word (no spaces) and should be all lowercase.  Lets just call it **archdeck**.  So type `archdeck` and press enter.  The `CTRL-s` to save and `CTRL-q` to exit the editor.
+
+'''
+
+=== Set root password
+[source,shell]
+----
+# passwd
+----
+
+You'll be prompted to enter a password for the root user.  Make sure this is secure and keep it safe so you don't lose it.
+
+'''
+
+== Step 8: Install bootloader
+We're going to use **grub** as our bootloader so we need to install the necessary packages:
+
+[source,shell]
+----
+# pacman -S grub efibootmgr os-prober
+
+# grub-install --target=x86_64-efi --bootloader-id=GRUB --efi-directory=/boot/efi
+
+# grub-mkconfig -o /boot/grub/grub.cfg
+----
+
+'''
+
+== Step 9: Disable wireless power management
+This time we need to disable the RTL8822CE link power management such that it persists after we reboot.  We can do this now that we have networkmanager and a bootable system.
+
+Create a new config file for this setting:
+
+[source,shell]
+----
+# micro /etc/NetworkManager/conf.d/default-wifi-powersave-on.conf
+----
+
+Set the contents of this file to:
+
+....
+[connection]
+wifi.powersave = 2
+....
+
+.For reference on this value:
+* NM_SETTING_WIRELESS_POWERSAVE_DEFAULT (0):    Use default setting
+* NM_SETTING_WIRELESS_POWERSAVE_IGNORE  (1):    Ignore the nm setting
+* NM_SETTING_WIRELESS_POWERSAVE_DISABLE (2):    Disable link power saving
+* NM_SETTING_WIRELESS_POWERSAVE_ENABLE  (3):    Enable link power saving
+
+'''
+
+== Step 10: Enable the network manager service
+We want networkmanager to come up automatically after we reboot, at which point we will configure it to automatically connect to our wireless AP.
+
+[source,shell]
+----
+# systemctl enable NetworkManager
+----
+
+'''
+
+== Step 11:  Reboot
+If what we did in step 8 worked, we should be ready to reboot.  If you spent a long time on this guide by this point, consider this an opportunity to recharge your Steam Deck battery.
+
+[source,shell]
+----
+# exit
+# reboot
+----
+
+The system will restart and should automatically boot into our new system.
+
+At the login prompt enter `root` and enter your password you chose in the previous step.
+
+'''
+
+== Step 12:  Enable wireless network connection
+Previously we connected to the wifi, but that was just temporary during the install, before we had networkmanager to handle it for us.  We will want to set it up permanently now.
+
+Check the status of the wlan:
+[source,shell]
+----
+# nmcli dev status
+----
+
+Should give you output something like this:
+....
+DEVICE  TYPE      STATE         CONNECTION 
+wlo1    wifi      disconnected  --
+lo      loopback  unmanaged     --  
+....
+
+Get a list of access points:
+[source,shell]
+----
+# nmcli dev wifi list
+----
+
+That will output something like this:
+....
+IN-USE  BSSID              SSID                 MODE   CHAN  RATE        SIGNAL  BARS  SECURITY  
+        AA:BB:CC:DD:FF:AA  MyAccessPoint        Infra  44    540 Mbit/s  17      ▂▄▆_  WPA2      
+        6C:5B:25:DD:FF:AA  Bobnet               Infra  44    540 Mbit/s  15      ▂___  WPA2      
+        24:91:82:CC:DD:EE  SomeWifiJoke         Infra  6     405 Mbit/s  12      ▂___  WPA2      
+....
+
+Find you SSID and type:
+[source,shell]
+----
+# nmcli --ask dev wifi connect <SSID>
+----
+
+Enter wifi password when prompted.
+
+If that all went well, you should be connected now.  Try pinging something to test your connection.
+[source,shell]
+----
+# ping archlinux.org
+----
+
+The Network Manager service will remember your wifi password and automatically log you into your network from now on.
+
+We can also test that our power management setting is working correctly.  Type:
+[source,shell]
+----
+# iwconfig
+----
+
+We should notice the power management line looks like this now.
+....
+wlo1      IEEE 802.11  ESSID:"MyAccessPoint"  
+          ...
+          Power Management:off
+          ...
+....
+
+'''
+
+== Step 13:  Install Hardware Support
+At this point you have a working minimal Linux system with networking, but we still need some graphics and audio support. We'll throw in a few essentials too.
+
+[source,shell]
+----
+# micro /etc/pacman.conf
+----
+
+Edit this file and find the lines
+....
+#[multilib]
+#Include = /etc/pacman.d/mirrorlist
+....
+
+and
+....
+#Color
+.....
+
+and uncomment all three of them by removing the `#` at the beginning of the line.
+
+Now use pacman to install some drivers and much needed libraries
+[source,shell]
+----
+# pacman -Syyu
+
+# pacman -S mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon libva-mesa-driver lib32-libva-mesa-driver mesa-vdpau lib32-mesa-vdpau vulkan-tools
+
+# pacman -S pipewire pipewire-pulse pipewire-alsa wireplumber alsa-utils lm_sensors openssh make gcc git cmake extra-cmake-modules
+----
+
+NOTE:  On older distro releases, the audio drivers were missing the UCM configuration files needed to make them work correctly.  This should have been fixed by now in Arch, but if you experience audio issues follow the steps in the <<workarounds_audio>> section.
+
+Once that's done, give it a reboot
+
+[source,shell]
+----
+# reboot
+----
+
+Then log back in as `root` the same as last time.
+
+'''
+
+== Step 14:  Add a user
+We need a non-root user to log in with that has sudo privileges.  You're free to do it your own way, but I like to keep root logins disabled and use an admin account.  Later on you may choose to have a totally unprivileged user for your purposes, but that's outside the scope of this guide for the time being.
+
+Lets create a new user called *administrator*:
+[source,shell]
+----
+# useradd -mG audio,video,wheel administrator
+----
+
+Now create a password for this user.
+[source,shell]
+----
+# passwd administrator
+----
+
+Now we want this use to have access to *sudo* via the *wheel* group
+[source,shell]
+----
+# export EDITOR=micro
+
+# visudo
+----
+
+This will edit your sudoers file.  Find the line that reads `#%wheel ALL=(ALL:ALL) ALL` and uncomment it so it reads `%wheel ALL=(ALL:ALL) ALL`.
+Press `CTRL-s` to save then press `CTRL-q` to quit.
+
+Restrict permissions for home:
+[source,shell]
+----
+# chmod 770 /home/administrator
+----
+
+Now lets try it out.
+[source,shell]
+----
+# logout
+----
+
+Log back in as the new `administrator` user with the password you just set!
+
+If all went well, you're logged in as `administrator@archdeck` (or whatever you chose)
+
+Test to make sure you have sudo privileges:
+[source,shell]
+----
+$ sudo ls /root
+----
+
+'''
+
+== Step 15:  Enable SSH access
+Your eyes are probably killing you at this point from staring at the tiny text on your Steam Deck.  There's also only one USB port, which it needs to charge with.  We're going to enable SSH access so we can log in remotely and continue the rest of the setup.
+
+[source,shell]
+----
+$ sudo micro /etc/ssh/sshd_config
+----
+
+Edit this file, find the line that reads:
+....
+# PermitRootLogin prohibit-password
+....
+
+and change it to
+
+....
+PermitRootLogin no
+....
+
+Press `CTRL-s` to save and `CTRL-q` to quit.
+
+Now enable the SSH service:
+[source,shell]
+----
+$ sudo systemctl enable sshd
+
+$ sudo systemctl start sshd
+----
+
+Now try remotely logging in with ssh from another computer.
+
+'''
+
+== Step 16:  Install the Xorg display server
+This section pertains to setting up Xorg.  Even if you prefer to use Wayland, these are still useful and won't interfere with Wayland compositors.  Xorg needs a few specific tweaks, so I need to cover it either way.  This will install sddm as the display manager and openbox as a minimal desktop.
+
+First, install the Xorg server and a nice terminal.
+[source,shell]
+----
+$ sudo pacman -S xorg xf86-video-amdgpu gnu-free-fonts kitty
+----
+
+If prompted for xorg packages to install, press `Enter` for all.
+
+Once that's done downloading and installing, we'll need to fix the screen rotation for X11:
+[source,shell]
+----
+$ sudo micro /etc/X11/xorg.conf.d/30-monitor.conf
+----
+
+Add the following lines as follows.  Be careful to avoid typos or X11 won't start.
+....
+Section "Monitor"
+    Identifier      "eDP"
+    Option          "Rotate" "right"
+EndSection
+....
+
+NOTE: Depending on the kernel(?), sometimes the monitor gets identified as "eDP-1".  If your Xorg screen rotation is not fixed by this, check your Xorg logs to see what the monitor is named by doing `$ grep eDP /var/log/Xorg.0.log`.
+
+Press `CTRL-s` to save and `CTRL-q` to quit.
+
+Now we need to fix the rotation of the touchscreen to match the screen rotation change.
+[source,shell]
+----
+$ sudo micro /etc/X11/xorg.conf.d/90-touchscreen.conf
+----
+
+This file will also be empty.  Add the following lines:
+....
+Section "InputClass"
+    Identifier          "Coordinate Transformation Matrix"
+    MatchIsTouchscreen  "on"
+    MatchDevicePath     "/dev/input/event*"
+    MatchDriver         "libinput"
+    Option              "CalibrationMatrix" "0 1 0 -1 0 1 0 0 1"
+EndSection
+....
+
+Again, press `CTRL-s` to save and `CTRL-q` to quit.
+
+Finally, we need to prevent screen tearing with the amdgpu driver
+
+Create and edit this file:
+[source,shell]
+----
+$ sudo micro /etc/X11/xorg.conf.d/20-amdgpu.conf
+----
+
+and add these contents
+
+....
+Section "Device"
+    Identifier  "AMD Graphics"
+    Driver      "amdgpu"
+    Option      "TearFree"  "true"
+EndSection
+....
+
+Press `CTRL-s` to save and `CTRL-q` quit the editor.
+
+Next, we'll install a display manager.  We'll use *sddm* because it supports both X and Wayland sessions.
+
+Type
+[source,shell]
+----
+$ sudo pacman -S sddm
+----
+
+Now start the display manager service (sddm in this case):
+[source,shell]
+----
+$ sudo systemctl enable sddm
+
+$ sudo systemctl start sddm
+----
+
+If all done correctly, this should immediately fire up your X11 server and show you a graphic login for your user.
+
+'''
+
+== Step 17: Install Wayland (optional)
+We can also install Wayland instead of or alongside X.  Generally, you'd just install the compositor you want, which will include the Wayland dependencies it needs.
+
+Each compositor has its own configuration so in this case I'll cover https://swaywm.org/[sway] because I love tiling WMs.
+
+=== Sway
+Install sway and dependencies
+[source,shell]
+----
+$ sudo pacman -S sway swaybg
+----
+
+Because Wayland does not read Xorg configuration files, we'll need to fix the display orientation for sway sessions as we did with X sessions.
+
+Create and edit the sway config file:
+[source,shell]
+----
+$ mkdir -p ~/.config/sway
+
+$ cp /etc/sway/config ~/.config/sway/
+
+$ micro ~/.config/sway/config
+----
+
+Add your user to the `seat` group and start `seatd`:
+[source,shell]
+----
+$ sudo usermod -aG seat <username>
+
+$ sudo systemctl enable seatd
+
+$ sudo systemctl start seatd
+----
+
+
+Add the following line to the top of the `Output Configuration` section:
+....
+### Output configuration
+# Fix screen rotation
+output eDP-1 mode 800x1200 transform 90
+....
+
+More information about configuring *sway* can be found at the https://wiki.archlinux.org/title/sway[Arch Wiki].
+
+''''
+
+== Post Installation
+
+This previous steps get you a basic system with a minimal graphic desktop, but lack the userspace drivers needed to use the gamepad as a fully functional input device.  
+
+'''
+
+=== Setting up the Gamepad
+The Steam Deck defaults into a kind of BIOS mode for input, which only maps a few buttons and not very useful for things like gaming.  https://codeburg.org/opensd/opensd/[OpenSD] attempts to allow users to fully utilize the gamepad without needing to have Steam installed at all.
+
+See xref:../getting_started.adoc[Getting Started with OpenSD] on how to install OpenSD on your system.  Also, see the xref:../users_manual/running.adoc[OpenSD User's Manual] (or run `man opensdd` once installed).
+
+'''
+
+=== Setting up automatic login
+This is pretty easy using *sddm*.
+
+[source,shell]
+----
+$ sudo micro /etc/sddm.conf
+----
+
+The file should be empty, so add these lines:
+....
+[Autologin]
+User=<user>
+Session=<desired session>
+....
+
+For example, if you wanted the *administrator* user to log into a *sway*:
+....
+[Autologin]
+User=administrator
+Session=sway
+....
+
+When you restart sddm it will automatically log in that user without needing a password.  Use with caution.
+
+'''
+
+=== Creating a Retroarch session
+Want to boot straight into Retroarch with a fully-gamepad driven UI?  We can do that.
+
+First, we'll need to install retroarch.  There are a lot of emulator cores, menus, shaders, etc., so we will just install them all while we're at it.
+
+[source,shell]
+----
+$ sudo pacman -S libretro
+----
+
+NOTE: If you prefer, you can select the individual packages you want.  Just make sure to get retroarch, a menu asset package and at least one core.
+
+Now we need to set up a custom X11 session.  There are several ways to do this, but I'll show my own weird method because I like the flexibility it gives.
+
+desktop session files go into `/usr/share/xsessions`, which is where we will create ours so SDDM knows where to find it.
+
+This directory may not exist yet, depending on what you've installed.  So we'll make sure that it does.
+[source,shell]
+----
+$ sudo mkdir -p /usr/share/xsessions
+
+$ sudo micro /usr/share/xsessions/retroarch.desktop
+----
+
+Now add these lines to the new file:
+....
+[Desktop Entry]
+Name=Retroarch
+Comment=Run a user-defined session for retroarch
+Exec=/etc/X11/Xsession
+....
+
+What this will do is run a shell script in your home directory named `~/.xsession` when you log in to that session.  This allows us to start whatever programs, daemons, services, set X11 setting, connect to network shares, etc. we want on login.
+
+We'll keep it simple for now.
+[source,shell]
+----
+$ micro ~/.xsession
+----
+
+and set the contents of this file to look like this
+
+....
+# Run this last and quit session when it exits
+exec retroarch
+....
+
+Save it.  Now make it executable
+
+[source,shell]
+----
+$ chmod +x ~/.xsession
+----
+
+
+Now next time you log into this session it will start retroarch.  If you've installed OpenSD as a service, it will start with the session as well.  You may need to configure retroarch if it does not recognise your gamepad profile.
+
+You can combine this with autologin to boot straight into retroarch.
+
+'''
+
+[#workarounds]
+== Fixes / Workarounds
+
+[#workarounds_audio]
+=== Audio problems
+When this guide was originally written in 2022, the ACP5x drivers were not yet in the mainline kernel and Valve had not bothered to upstream the ALSA UCM files (which SteamyPOS had in use for over 1.5 years) needed to properly bind the stereo channels together for the internal speakers, resulting in only the left channel being usable.
+
+These were eventually fixed, but created a lot of problems, particularly for point-release distros.  Some users using pre-2023 distro releases still experience these problem, and the best advice is just to upgrade to the latest release.  Arch users should no longer have this problem, though.
