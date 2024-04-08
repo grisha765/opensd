@@ -99,7 +99,7 @@ const Drivers::Gamepad::Profile PROFILE_TEMPLATE =
             .name                   = "OpenSD Gamepad Device",
             .vid                    = 0xDEAD,
             .pid                    = 0xBEEF,
-            .ver                    = 0x0001,
+            .ver                    = 0x0100,
             .key_list
             {
                 // No keys or buttons are defined by default here.
@@ -120,8 +120,8 @@ const Drivers::Gamepad::Profile PROFILE_TEMPLATE =
         {
             .name                   = "OpenSD Motion Control Device",
             .vid                    = 0xDEAD,
-            .pid                    = 0xBEEF,
-            .ver                    = 0x0001,
+            .pid                    = 0xD00D,
+            .ver                    = 0x0100,
             .key_list
             {
                 // No keys defined
@@ -140,7 +140,7 @@ const Drivers::Gamepad::Profile PROFILE_TEMPLATE =
             .name                   = "OpenSD Trackpad/Mouse Device",
             .vid                    = 0xDEAD,
             .pid                    = 0xF00D,
-            .ver                    = 0x0001,
+            .ver                    = 0x0100,
             .key_list
             {
                 // Mouse devices should have at least BTN_LEFT defined, but
