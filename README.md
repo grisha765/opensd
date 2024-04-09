@@ -3,7 +3,7 @@ An open-source Linux userspace driver for Valve's Steam Deck hardware.
 
 [![](https://img.shields.io/badge/license-GPLv3-lightgray?style=for-the-badge)](https://choosealicense.com/licenses/gpl-3.0/) 
 [![](https://img.shields.io/badge/Written%20in-C%2B%2B-%23f34b7d?style=for-the-badge)]()
-[![](https://img.shields.io/badge/Version-0.52-blue?style=for-the-badge)]() 
+[![](https://img.shields.io/gitea/v/release/opensd/opensd?gitea_url=https%3A%2F%2Fcodeberg.org&display_name=release&style=for-the-badge)]() 
 [![](https://img.shields.io/gitea/last-commit/OpenSD/OpenSD?gitea_url=https%3A%2F%2Fcodeberg.org&style=for-the-badge)]() 
 [![](https://img.shields.io/gitea/issues/open/OpenSD/OpenSD?gitea_url=https%3A%2F%2Fcodeberg.org&style=for-the-badge)]()
 
