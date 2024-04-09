@@ -23,7 +23,7 @@
 #   Example:
 #       Name = "Retroarch Profile"
 #
-Name    = "Default OpenSD Profile"
+Name        = "Default OpenSD Profile"
 
 # Profile description
 #   The profile description as it will appear in the GUI and through the CLI query.
@@ -37,7 +37,7 @@ Name    = "Default OpenSD Profile"
 #   Example:
 #       Description = "Just a basic configuration for Retroarch"
 #
-Description     = "A basic configuration that should work for most games and provide a few extras."
+Description = "A basic configuration that should work for most games and provide a few extras."
 
 
 [Features]
@@ -155,9 +155,9 @@ TrackpadFiltering  = true
 #           The name string of the device
 # 
 #   Examples:
-#       Gamepad = 0xDEAD 0xBEEF 0x001 "OpenSD Gamepad Device"
-#       Motion = 0xDEAD 0xBEEF 0x001 "OpenSD Motion Control Device"
-#       Mouse = 0xDEAD 0xF00D 0x001 "OpenSD Mouse Device"
+#       Gamepad = 0xDEAD 0xBEEF 0x0100 "OpenSD Gamepad Device"
+#       Motion  = 0xDEAD 0xDOOD 0x0100 "OpenSD Motion Control Device"
+#       Mouse   = 0xDEAD 0xF00D 0x0100 "OpenSD Mouse Device"
 #
 
 [Deadzones]
@@ -645,4 +645,3 @@ PitchPlus           = Motion    ABS_Y       +
 PitchMinus          = Motion    ABS_Y       -
 YawPlus             = Motion    ABS_Z       +
 YawMinus            = Motion    ABS_Z       -
-
