@@ -216,46 +216,51 @@ void ProfileIni::GetDeviceInfo( std::string key, uint16_t& rVid, uint16_t& rPid,
     uint16_t            vid;
     uint16_t            pid;
     uint16_t            ver;
+    bool                caught_exception=false;
     
     
     // Values are unaltered if not found
-    if (!mIni.DoesKeyExist( "DeviceInfo", key ))
-        return;
-    
-    // Key exists, continue
-    val = mIni.GetVal( "DeviceInfo", key );
-    
-    // Key should have 4 values
-    if (val.Count() < 4)
+    if (mIni.DoesKeyExist( "DeviceInfo", key ))
     {
-        gLog.Write( Log::WARN, "Format error: '" + key + "' expects 4 values.  Ignoring." );
-        return;
-    }
+        // Key exists, continue
+        val = mIni.GetVal( "DeviceInfo", key );
         
-    // Convert hex values to int
-    try
-    {
-        vid = std::stoul( val.String(0), nullptr, 16 );
-        pid = std::stoul( val.String(1), nullptr, 16 );
-        ver = std::stoul( val.String(2), nullptr, 16 );
+        // Key should have 4 values
+        if (val.Count() == 4)
+        {
+            // Convert hex values to int
+            try
+            {
+                vid = std::stoul( val.String(0), nullptr, 16 );
+                pid = std::stoul( val.String(1), nullptr, 16 );
+                ver = std::stoul( val.String(2), nullptr, 16 );
+            }
+            catch (...)
+            {
+                caught_exception=true;
+                gLog.Write( Log::WARN, "Format error: 'DEVICEINFO." + key + "' contains an invalid hexidecimal value.  Ignoring key and using defaults." );
+            }
+
+            if (!caught_exception)
+            {
+                // No errors, so set reference values and return
+                rVid = vid;
+                rPid = pid;
+                rVer = ver;
+                rName = val.String(3);
+            }
+        }
+        else
+            gLog.Write( Log::WARN, "Format error: '" + key + "' expects 4 values.  Ignoring key and using defaults." );
     }
-    catch (...)
-    {
-        gLog.Write( Log::WARN, "Format error: '" + key + "' contains an invalid hexidecimal value.  Ignoring." );
-        return;
-    }
-    
-    // No errors, so set reference values and return
-    rVid = vid;
-    rPid = pid;
-    rVer = ver;
-    rName = val.String(3);
-    
+    else
+        gLog.Write( Log::WARN, "No device info for '" + key + "'.  Using defaults." );
+
     gLog.Write( Log::VERB, "    '" + key + "' device info set:" );
     gLog.Write( Log::VERB, "        Name: '" + rName + "'" );
-    gLog.Write( Log::VERB, "        VID:  0x" + Str::Uint16ToHex(vid) );
-    gLog.Write( Log::VERB, "        PID:  0x" + Str::Uint16ToHex(vid) );
-    gLog.Write( Log::VERB, "        Ver:  " + Str::Bcd16ToString(ver) );
+    gLog.Write( Log::VERB, "        VID:  0x" + Str::Uint16ToHex(rVid) );
+    gLog.Write( Log::VERB, "        PID:  0x" + Str::Uint16ToHex(rPid) );
+    gLog.Write( Log::VERB, "        Ver:  " + Str::Bcd16ToString(rVer) );
 }
 
 

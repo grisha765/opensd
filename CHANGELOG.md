@@ -1,5 +1,19 @@
 # OpenSD changelog
 
+## [v0.52]  2023/04/08
+### Changed
+ - Improved logging when parsing DeviceInfo of profiles
+ - Updated user documentation for [Touchpads] profile section
+ - Cleaned up [DeviceInfo] examples in default profile
+
+### Fixed
+ - Fixed function redefinition from my last sloppy merge on gitlab
+ - Fixed error where virtual device PID was misreported
+
+### Removed
+ - Removed unused port setting in daemon.ini
+
+
 ## [v0.51]  2024/03/19
 ### Changed
   - Changed project owner / maintainer
@@ -27,8 +41,8 @@
   - Added individual scale for all relative axes.
   - Added scale parameter for all REL_ bindings in profiles.
   - Added new [Touchpads] section to profiles.
-  - Added new rel axis sensitivity keys to [Touchpad] section in profiles.
-  - Added new rel axis intertia keys to [Touchpad] section in profiles.
+  - Added new rel axis sensitivity keys to [Touchpads] section in profiles.
+  - Added new rel axis intertia keys to [Touchpads] section in profiles.
   
 ### Changed
   - Updated and improved documentation in default ini files.

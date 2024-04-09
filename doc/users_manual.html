@@ -480,6 +480,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#prof_section_deadzones">[Deadzones] Section</a></li>
 <li><a href="#prof_section_gamepadaxes">[GamepadAxes] Section</a></li>
 <li><a href="#prof_section_motionaxes">[MotionAxes] Section</a></li>
+<li><a href="#prof_section_touchpads">[Touchpads] Section</a>
+<ul class="sectlevel3">
+<li><a href="#_touchpad_sensitivity">Touchpad Sensitivity</a></li>
+<li><a href="#_touchpad_inertia_decay">Touchpad Inertia Decay</a></li>
+</ul>
+</li>
 <li><a href="#prof_section_bindings">[Bindings] Section</a>
 <ul class="sectlevel3">
 <li><a href="#prof_section_bindings_gamepad">Gamepad Bindings</a></li>
@@ -1097,9 +1103,9 @@ This must be enabled for trackpad deadzones to work.
 <div class="listingblock">
 <div class="content">
 <pre>[DeviceInfo]
-Gamepad     = 0xDEAD 0xBEEF 0x0001 "OpenSD Gamepad Device"
-Motion      = 0xDEAD 0xBEEF 0x0001 "OpenSD Motion Control Device"
-Mouse       = 0xC475 0xF00D 0x0101 "OpenSD Mouse / Trackpad Device"</pre>
+Gamepad     = 0xDEAD 0xBEEF 0x0100 "OpenSD Gamepad Device"
+Motion      = 0xDEAD 0xD00D 0x0100 "OpenSD Motion Control Device"
+Mouse       = 0xDEAD 0xF00D 0x0100 "OpenSD Mouse / Trackpad Device"</pre>
 </div>
 </div>
 <div class="admonitionblock note">
@@ -1291,6 +1297,90 @@ Motion controls are not yet fully implemented.
 </table>
 </div>
 <hr>
+</div>
+<div class="sect2">
+<h3 id="prof_section_touchpads">[Touchpads] Section</h3>
+<div class="sect3">
+<h4 id="_touchpad_sensitivity">Touchpad Sensitivity</h4>
+<div class="paragraph">
+<p>When the touchpad is used for relative axes, the sensitivity of the X and Y axes can be adjusted for each pad.  This axis movement is multiplied by the specified value, so values less than 1.0 will result in a slower rate of movement.  A value of 1.0 represents 100% of default sensitvity.  A value of 0.5 would be 50% slower than the default.</p>
+</div>
+<div class="paragraph">
+<p>While it is possible to set the scale of individual relative axes for each binding, that method has low precision due to the nature of integer math.  Adjusting the pad sensitivity here will probably give you much finer-grain control.  The two methods can also be combined, with the REL_ axis scale being calulated after the pad sensitivity.</p>
+</div>
+<div class="paragraph">
+<p>Format:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ini" data-lang="ini">pad_sens = &lt;x_sens&gt; &lt;y_sens&gt;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>pad_sens</code>:  Left or right pad sensitivity.  Can be <code>LPadSensitivity</code> or <code>RPadSensitivity</code>.</p>
+</li>
+<li>
+<p><code>x_sens</code>:  A floating point value representing the sensitivity of the X axis.</p>
+</li>
+<li>
+<p><code>y_sens</code>:  A floating point value representing the sensitivity of the Y axis.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ini" data-lang="ini">[Touchpads]
+LPadSensitivity     = 1.0       1.0
+RPadSensitivity     = 1.0       1.0</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_touchpad_inertia_decay">Touchpad Inertia Decay</h4>
+<div class="paragraph">
+<p>When used as relative axes, the touchpad motion vectors have intertia.  This intertia decays each USB frame until it becomes zero.  These settings allow you to configure the rate of inertial decay.  The gamepad USB device polls at fixed(?) 250Hz so it can fall off rather quickly even with very small values.</p>
+</div>
+<div class="paragraph">
+<p>A value of 0 means no decay (frictionless).  A value of 1.0 will effectively disable inertia.  When using a trackpad as a pointer device, a value of 0.05 (5% decay per frame) is recommended.  Values are clamped from 0 to 1.0.</p>
+</div>
+<div class="paragraph">
+<p>Format:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ini" data-lang="ini">pad_decay = &lt;x_decay&gt; &lt;y_decay&gt;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>pad_decay</code>:  Left or right pad inertia decay.  Can be <code>LPadDecay</code> or <code>RPadDecay</code>.</p>
+</li>
+<li>
+<p><code>x_decay</code>:  A floating point value between 0 and 1.0 representing the inertial decay of the X axis.</p>
+</li>
+<li>
+<p><code>y_decay</code>:  A floating point value between 0 and 1.0 representing the inertial decay of the Y axis.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ini" data-lang="ini">[Touchpads]
+LPadDecay       = 0.05      0.05
+RPadDecay       = 0.05      0.05</code></pre>
+</div>
+</div>
+<hr>
+</div>
 </div>
 <div class="sect2">
 <h3 id="prof_section_bindings">[Bindings] Section</h3>
@@ -2473,44 +2563,75 @@ AllowClients = true</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-ini" data-lang="ini">[Profile]
-Name            = Example Profile
-Description     = Just an example profile to show basic use
+Name        = "Default OpenSD Profile"
+Description = "A basic configuration that should work for most games and provide a few extras."
+
 
 [Features]
-ForceFeedback      = true
-MotionDevice       = true
-MouseDevice        = true
-LizardMode         = false
-StickFiltering     = true
-TrackpadFiltering  = true
+ForceFeedback       = true
+MotionDevice        = true
+MouseDevice         = true
+LizardMode          = false
+StickFiltering      = true
+TrackpadFiltering   = true
+
+
+[DeviceInfo]
+Gamepad     = 0xDEAD 0xBEEF 0x0100 "OpenSD Gamepad Device"
+Motion      = 0xDEAD 0xD00D 0x0100 "OpenSD Motion Control Device"
+Mouse       = 0xDEAD 0xF00D 0x0100 "OpenSD Mouse Device"
+
 
 [Deadzones]
-LStick    = 0.1
-RStick    = 0.1
-LPad      = 0
-RPad      = 0
-LTrigg    = 0
-RTrigg    = 0
+LStick      = 0.1
+RStick      = 0.1
+LPad        = 0
+RPad        = 0
+LTrigg      = 0
+RTrigg      = 0
+
 
 [GamepadAxes]
-ABS_HAT0X    = -1        1
-ABS_HAT0Y    = -1        1
-ABS_X        = -32767    32767
-ABS_Y        = -32767    32767
-ABS_RX       = -32767    32767
-ABS_RY       = -32767    32767
-ABS_Z        = 0         32767
-ABS_RZ       = 0         32767
+#-----------------------------------------------------------
+# Axis            Min       Max         Fuzz    Resolution
+#-----------------------------------------------------------
+ABS_HAT0X       = -1        1
+ABS_HAT0Y       = -1        1
+ABS_X           = -32767    32767
+ABS_Y           = -32767    32767
+ABS_RX          = -32767    32767
+ABS_RY          = -32767    32767
+ABS_Z           = 0         32767
+ABS_RZ          = 0         32767
+
 
 [MotionAxes]
-ABS_X        = -32767    32767
-ABS_Y        = -32767    32767
-ABS_Z        = -32767    32767
-ABS_RX       = -32767    32767
-ABS_RY       = -32767    32767
-ABS_RZ       = -32767    32767
+#-----------------------------------------------------------
+# Axis            Min       Max         Fuzz    Resolution
+#-----------------------------------------------------------
+ABS_X           = -32767    32767
+ABS_Y           = -32767    32767
+ABS_Z           = -32767    32767
+ABS_RX          = -32767    32767
+ABS_RY          = -32767    32767
+ABS_RZ          = -32767    32767
+
+
+[Touchpads]
+#---------------------------------------
+# Axis                x         y
+#---------------------------------------
+LPadSensitivity     = 1.0       1.0
+RPadSensitivity     = 1.0       1.0
+LPadDecay           = 0.05      0.05
+RPadDecay           = 0.05      0.05
+
 
 [Bindings]
+#-----------------------------------------------------------
+# Input             BindType    Mapping     +/-/scale
+#-----------------------------------------------------------
+# Directional Pad
 DpadUp              = Gamepad   ABS_HAT0Y   -
 DpadDown            = Gamepad   ABS_HAT0Y   +
 DpadLeft            = Gamepad   ABS_HAT0X   -
@@ -2533,7 +2654,7 @@ R5                  = None
 Menu                = Gamepad   BTN_START
 Options             = Gamepad   BTN_SELECT
 Steam               = Gamepad   BTN_MODE
-QuickAccess         = Command   true        0   rofi -show drun
+QuickAccess         = Mouse     BTN_RIGHT
 # Triggers
 LTrigg              = Gamepad   ABS_Z       +
 RTrigg              = Gamepad   ABS_RZ      +
@@ -2556,10 +2677,11 @@ LPadUp              = None
 LPadDown            = None
 LPadLeft            = None
 LPadRight           = None
+LPadTouch           = None
 LPadRelX            = None
 LPadRelY            = None
 LPadTouch           = None
-LPadPress           = Mouse     BTN_LEFT
+LPadPress           = None
 LPadForce           = None
 LPadPressQuadUp     = None
 LPadPressQuadDown   = None
@@ -2587,10 +2709,11 @@ RPadUp              = None
 RPadDown            = None
 RPadLeft            = None
 RPadRight           = None
+RPadTouch           = None
 RPadRelX            = Mouse     REL_X
 RPadRelY            = Mouse     REL_Y
 RPadTouch           = None
-RPadPress           = Mouse     BTN_RIGHT
+RPadPress           = Mouse     BTN_LEFT
 RPadForce           = None
 RPadPressQuadUp     = None
 RPadPressQuadDown   = None

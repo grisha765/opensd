@@ -483,13 +483,13 @@ std::vector<std::string> Ini::IniFile::GetVal( std::string section, std::string 
 {
     if (section.empty() || key.empty())
     {
-        gLog.Write( Log::ERROR, FUNC_NAME, "Failed to get value: Section or key name is blank." );
+        gLog.Write( Log::ERROR, FUNC_NAME, "Failed to get value for '" + section + "." + key + "': Section or key name is blank." );
         return {};
     }
     
     if (section == "NONE")
     {
-        gLog.Write( Log::ERROR, FUNC_NAME, "Failed to get value: Use of reserved section name." );
+        gLog.Write( Log::ERROR, FUNC_NAME, "Failed to get value for '" + section + "." + key + "': Use of reserved section name." );
         return {};
     }
     
@@ -497,7 +497,7 @@ std::vector<std::string> Ini::IniFile::GetVal( std::string section, std::string 
     {
         if (!((std::isalnum(c)) || (c == '_')))
         {
-            gLog.Write( Log::DEBUG, FUNC_NAME, "Failed to get value: Invalid section name." );
+            gLog.Write( Log::DEBUG, FUNC_NAME, "Failed to get value for '" + section + "." + key + "': Invalid section name." );
             return {};
         }
     }
@@ -506,7 +506,7 @@ std::vector<std::string> Ini::IniFile::GetVal( std::string section, std::string 
     {
         if (!((std::isalnum(c)) || (c == '_')))
         {
-            gLog.Write( Log::DEBUG, FUNC_NAME, "Failed to get value: Invalid key name." );
+            gLog.Write( Log::DEBUG, FUNC_NAME, "Failed to get value for '" + section + "." + key + "': Invalid key name." );
             return {};
         }
     }
@@ -524,7 +524,7 @@ std::vector<std::string> Ini::IniFile::GetVal( std::string section, std::string 
                         return k.values;
     
     // Return empty vector if not found
-    gLog.Write( Log::DEBUG, FUNC_NAME, "Failed to get value: Not found." );
+    gLog.Write( Log::DEBUG, FUNC_NAME, "Failed to get value for '" + section + "." + key + "': Not found." );
     return {};
 }
 
@@ -534,7 +534,7 @@ int Ini::IniFile::SetVal( std::string section, std::string key, std::vector<std:
 {
     if (section == "NONE")
     {
-        gLog.Write( Log::ERROR, FUNC_NAME, "Failed to set value: Use of reserved section name." );
+        gLog.Write( Log::ERROR, FUNC_NAME, "Failed to set value for '" + section + "." + key +"': Use of reserved section name." );
         return Err::INVALID_PARAMETER;
     }
     
@@ -542,7 +542,7 @@ int Ini::IniFile::SetVal( std::string section, std::string key, std::vector<std:
     {
         if (!((std::isalnum(c)) || (c == '_')))
         {
-            gLog.Write( Log::DEBUG, FUNC_NAME, "Failed to set value: Invalid section name." );
+            gLog.Write( Log::DEBUG, FUNC_NAME, "Failed to set value for '" + section + "." + key + "': Invalid section name." );
             return Err::INVALID_PARAMETER;
         }
     }
@@ -551,7 +551,7 @@ int Ini::IniFile::SetVal( std::string section, std::string key, std::vector<std:
     {
         if (!((std::isalnum(c)) || (c == '_')))
         {
-            gLog.Write( Log::DEBUG, FUNC_NAME, "Failed to set value: Invalid key name." );
+            gLog.Write( Log::DEBUG, FUNC_NAME, "Failed to set value '" + section + "." + key + "': Invalid key name." );
             return Err::INVALID_PARAMETER;
         }
     }
@@ -652,7 +652,7 @@ bool Ini::IniFile::DoesKeyExist( std::string section, std::string key )
 {
     ValVec          val;
     val = GetVal( section, key );
-    
+
     return val.Count();
 }
 
