@@ -98,15 +98,15 @@ int Daemon::Startup()
     signal( SIGTERM, sig_handler );
     signal( SIGKILL, sig_handler );
 
-    // Load config.ini
-    gLog.Write( Log::INFO, "Loading config file..." );
-    result = mConfig.Load( mFileMgr.GetConfigFilePath() );
-    if (result != Err::OK)
-        return Err::INIT_FAILED;
-
     // Initialize file manager
     gLog.Write( Log::INFO, "Initializing file manager..." );
     result = mFileMgr.Init();
+    if (result != Err::OK)
+        return Err::INIT_FAILED;
+
+    // Load config.ini
+    gLog.Write( Log::INFO, "Loading config file..." );
+    result = mConfig.Load( mFileMgr.GetConfigFilePath() );
     if (result != Err::OK)
         return Err::INIT_FAILED;
 
