@@ -243,4 +243,7 @@ int main( int argc, char **argv )
     
     // Run daemon and exit
     return opensdd.Run();
+
+    // Give runner thread time to finish construction
+    usleep(500000);
 }

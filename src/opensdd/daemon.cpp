@@ -57,17 +57,17 @@ int Daemon::LoadProfile( std::string fileName )
     if (mpGpDrv == nullptr)
     {
         gLog.Write( Log::DEBUG, FUNC_NAME, "Gamepad driver object does not exist." );
-        gLog.Write( Log::ERROR, "Failed to load profile: Initialization error." );
+        gLog.Write( Log::ERROR, "Failed to load profile: Gamepad driver object not initialized." );
         return Err::NOT_INITIALIZED;
     }
     
-    gLog.Write( Log::INFO, "Loading gamepad profile '" + fileName + "'..." );
+    gLog.Write( Log::INFO, "Loading gamepad profile '" + fileName + "' ... " );
 
     // Get the full file path for the profile
     path = mFileMgr.GetProfileFilePath( fileName );
     if (path.empty())
     {
-        gLog.Write( Log::ERROR, "Failed to find profile '" + fileName + "'" );
+        gLog.Write( Log::ERROR, "Unable to find profile '" + fileName + "'" );
         return Err::FILE_NOT_FOUND;
     }
 
