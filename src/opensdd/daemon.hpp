@@ -42,7 +42,6 @@ public:
     // Daemon config overrides
     void                            SetStartupProfile( std::string profileName );
 
-    int                             ListProfiles();
     int                             Run();
     void                            Stop();
     

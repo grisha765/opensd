@@ -20,13 +20,10 @@
 
 #include "prog_args.hpp"
 #include "../common/log.hpp"
-#include <iostream>
+
 
 int ProgArgs::GetArgCount()
 {
-    for (auto& s : mArgList)
-        std::cout << " > " << s.c_str() << std::endl;
-        
     return mArgList.size();
 }
 

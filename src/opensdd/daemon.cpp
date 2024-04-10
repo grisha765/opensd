@@ -22,7 +22,6 @@
 #include "profile_ini.hpp"
 #include "../common/log.hpp"
 #include "../common/errors.hpp"
-#include <iostream>
 // Linux
 #include <signal.h>
 
@@ -162,36 +161,6 @@ void Daemon::SetStartupProfile( std::string profileName )
     mConfig.mProfileName = profileName;
 }
 
-
-int Daemon::ListProfiles()
-{
-    int                         result;
-    std::vector<std::string>    list;
-    
-    // Initialize file manager
-    gLog.Write( Log::INFO, "Initializing file manager..." );
-    result = mFileMgr.Init();
-    if (result != Err::OK)
-    {
-        gLog.Write( Log::ERROR, "Failed to initialize file manager..." );
-        return Err::INIT_FAILED;
-    }
-    
-    list = mFileMgr.GetProfileList();
-    if (!list.size())
-    {
-        gLog.Write( Log::ERROR, "No profiles found!" );
-        return Err::NOT_FOUND;
-    }
-
-    // std::cout << "Available profiles:" << std::endl;
-    for ( auto const& s : list )
-    {
-        std::cout << s << std::endl;
-    }
-
-    return Err::OK;    
-}
 
 
 int Daemon::Run()
