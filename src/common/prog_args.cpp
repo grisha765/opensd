@@ -22,23 +22,40 @@
 #include "../common/log.hpp"
 
 
-int ProgArgs::HasOpt( std::string shortOpt, std::string longOpt )
+int ProgArgs::GetArgCount()
 {
-    unsigned int    pos = 0;
+    if (mArgList.size() < 2)
+        return 0;
+
+    return mArgList.size() - 1;
+}
+
+
+
+int ProgArgs::GetErrorCount()
+{
+    return mErrorCount;
+}
+
+
+
+int ProgArgs::FindOption( std::string shortOpt, std::string longOpt )
+{
+    unsigned int    pos = -1;
     int             count = 0;
     bool            terminated = false;
 
 
     // Return 0 if there are no program arguments
     if (mArgList.size() < 2)
-        return 0;
+        return -1;
 
     // Return 0 if no short and long options specified
     if ((shortOpt.empty()) && (longOpt.empty()))
     {
-        gLog.Write( Log::DEBUG, FUNC_NAME, "No options specified." );
+        gLog.Write( Log::ERROR, FUNC_NAME, "No options specified." );
         ++mErrorCount;
-        return 0;
+        return -1;
     }
 
     // Add preceeding "-" to short option
@@ -50,7 +67,7 @@ int ProgArgs::HasOpt( std::string shortOpt, std::string longOpt )
         longOpt = "--" + longOpt;
 
     // Loop through arg list and look for option
-    for (unsigned int i = 1; i < mArgList.size(); ++i)
+    for (unsigned int i = 0; i < mArgList.size(); ++i)
     {
         if (!terminated)
         {
@@ -79,14 +96,14 @@ int ProgArgs::HasOpt( std::string shortOpt, std::string longOpt )
 
     // No matches
     if (count == 0)
-        return 0;
+        return -1;
 
     // Multiple matches returns error
     if (count > 1)
     {
         gLog.Write( Log::DEBUG, FUNC_NAME, "Multiple options definitions." );
         ++mErrorCount;
-        return 0;
+        return -1;
     }
 
     // If theres only 1 match, return the position
@@ -95,20 +112,14 @@ int ProgArgs::HasOpt( std::string shortOpt, std::string longOpt )
 
 
 
-std::string ProgArgs::GetOptParam( std::string shortOpt, std::string longOpt )
+std::string ProgArgs::GetParam( int pos )
 {
-    int             result;
-    unsigned int    pos;
-
-
-    result = HasOpt( shortOpt, longOpt );
-    if (result < 1)
+    // Return empty string if option was not found
+    if (pos < 0)
         return "";
 
-    pos = result + 1;
-
     // No option after argument
-    if (pos >= mArgList.size())
+    if ((unsigned int)pos >= mArgList.size())
         return "";
 
     // Just to be safe
@@ -125,16 +136,98 @@ std::string ProgArgs::GetOptParam( std::string shortOpt, std::string longOpt )
 
 
 
-int ProgArgs::GetErrorCount()
+bool ProgArgs::HasOpt( std::string shortOpt, std::string longOpt, std::string& rParam )
 {
-    return mErrorCount;
+    int     pos;
+
+    pos = FindOption( shortOpt, longOpt );
+
+    // Return if option not found
+    if (pos < 0)
+    {
+        rParam = "";
+        return false;
+    }
+    
+    // Get option parameter if present
+    rParam = GetParam( pos );
+
+    return true;
+}
+
+
+
+bool ProgArgs::HasOpt( std::string shortOpt, std::string longOpt )
+{
+    return (FindOption( shortOpt, longOpt ) >= 0);
+}
+
+
+
+bool ProgArgs::PopOpt( std::string shortOpt, std::string longOpt, std::string& rParam )
+{
+    int     pos;
+
+    pos = FindOption( shortOpt, longOpt );
+
+    // Return if option not found
+    if (pos < 0)
+    {
+        rParam = "";
+        return false;
+    }
+
+    // Get option parameter if present
+    rParam = GetParam( pos );
+
+    // Erase elements
+    if (!rParam.empty())
+    {
+        try 
+        {
+            mArgList.erase( mArgList.begin() + pos, mArgList.begin() + pos + 1 );
+        }
+        catch (...)
+        {
+            int e = errno;
+            gLog.Write( Log::ERROR, FUNC_NAME, "Caught exception while erasing vector elements: " + Err::GetErrnoString(e) );
+        }
+    }
+    else
+    {
+        try
+        {
+            mArgList.erase( mArgList.begin() + pos );
+        }
+        catch (...)
+        {
+            int e = errno;
+            gLog.Write( Log::ERROR, FUNC_NAME, "Caught exception while erasing vector element: " + Err::GetErrnoString(e) );
+        }
+    }
+
+    return true;
+}
+
+
+
+bool ProgArgs::PopOpt( std::string shortOpt, std::string longOpt )
+{
+    std::string     s;
+
+    return PopOpt( shortOpt, longOpt, s );
 }
 
 
 
 ProgArgs::ProgArgs( std::vector<std::string> argList )
 {
-    mArgList = argList;
+    if (argList.size() > 1)
+    {
+        argList.erase( argList.begin() );
+        mArgList = argList;
+    }
+    
     mErrorCount = 0;
 }
 

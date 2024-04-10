@@ -426,8 +426,6 @@ int FileMgr::Init()
     if (mConfigDir.empty() || mProfileDir.empty())
         return Err::ENVIRONMENT_ERROR;
     
-    // TODO: get initial list of profiles
-    
     return Err::OK;
 }
 

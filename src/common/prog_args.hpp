@@ -23,6 +23,7 @@
 
 #include <vector>
 #include <string>
+#include "errors.hpp"
 
 
 class ProgArgs
@@ -30,11 +31,23 @@ class ProgArgs
 private:
     std::vector<std::string>    mArgList;
     int                         mErrorCount;
+
+    int                         FindOption( std::string shortOpt, std::string longOpt );
+    std::string                 GetParam( int pos );
     
 public:
-    int                         HasOpt( std::string shortOpt, std::string longOpt );
-    std::string                 GetOptParam( std::string shortOpt, std::string longOpt );
+    int                         GetArgCount();
     int                         GetErrorCount();
+
+    // True if short (-x) or long (--xyz) option is present. rParam returns option paramater if present.
+    bool                        HasOpt( std::string shortOpt, std::string longOpt, std::string& rParam );
+    bool                        HasOpt( std::string shortOpt, std::string longOpt );
+    
+    // True if short (-x) or long (--xyz) option is present and removes arg and parameter, if present. 
+    //   rParam returns option parameter if present or an empty string if not.
+    bool                        PopOpt( std::string shortOpt, std::string longOpt, std::string& rParam );
+    bool                        PopOpt( std::string shortOpt, std::string longOpt );
+
     
     ProgArgs( std::vector<std::string> argList );
     ~ProgArgs();

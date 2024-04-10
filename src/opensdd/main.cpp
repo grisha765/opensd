@@ -59,7 +59,8 @@ const std::string   HELP_BLOCK =
     "    -l --log-level <level>     Set minumum logging level.  Default: 'warn'\n"
     "                               Valid options are:\n"
     "                                 verbose, debug, info, warn, error\n"
-    "    -p --profile <profile>     Force load a specific profile on startup.\b"
+    "    -p --profile <profile>     Force load a specific profile on startup.\n"
+    "       --list-profiles         Print list of available profiles and exit.\n"
 };
 
 
@@ -91,12 +92,15 @@ int main( int argc, char **argv )
     std::vector<std::string>    arg_list( argv, argv + argc );
     Daemon                      opensdd;
     ProgArgs                    args( arg_list );
-    
+    std::string                 opt_param;
+
+    // No longer needed
+    arg_list.clear();
     
     // Set initial Logging level
     gLog.SetFilterLevel( Log::WARN );
 
-    // Handle command line arguments
+    /// Handle command line arguments
     
     // Version
     if (args.HasOpt( "v", "version" ))
@@ -115,16 +119,21 @@ int main( int argc, char **argv )
     }
     
     // Logging level
-    if (args.HasOpt( "l", "log-level" ))
+    if (args.PopOpt( "l", "log-level", opt_param ))
     {
         std::vector<std::string>    levels = { "", "verb", "verbose", "debug", "info", "warn", "warning", "error" }; 
-        std::string                 result;
         unsigned int                i = 0;
+
+        // Check if level is set after option
+        if (opt_param.empty())
+        {
+            std::cout << "Missing log-level parameter. Run again with --help for usage.\n";
+            return -1;
+        }
         
-        result = args.GetOptParam( "l", "log-level" );
         for (auto& s : levels)
         {
-            if (s == result)
+            if (s == opt_param)
                 break;
             ++i;
         }
@@ -155,42 +164,46 @@ int main( int argc, char **argv )
             
             case 0: // nada
             default:  // Unknown
-                std::cout << "Invalid option.  Run again with --help for usage.\n";
+                std::cout << "Invalid log-level parameter '" << opt_param.c_str() << "'. Run again with --help for usage.\n";
                 return -1;
             break;
         }
     }
 
-    // Check for --list-profiles argument
+    // List profiles
     if (args.HasOpt( "", "list-profiles" ))
     {
         // print list and exit
         return opensdd.ListProfiles();
     }
 
-    // Check for -p | --profile argument
-    if (args.HasOpt( "p", "profile" ))
+    // Startup profile override
+    if (args.PopOpt( "p", "profile", opt_param ))
     {
-        std::string     profile_name;
-
-        profile_name = args.GetOptParam( "l", "log-level" );
-
-        if (!profile_name.length())
+        if (!opt_param.empty())
         {
             std::cout << "Usage: opensdd --profile <profile name>\n";
             return -1;
         }
 
-        opensdd.SetStartupProfile( profile_name );
+        opensdd.SetStartupProfile( opt_param );
     }
-   
+
+    /// Done checking program args
+    
     // Exit if there were argument parsing errors
     if (args.GetErrorCount())
     {
-        std::cout << "Invalid option.  Run again with --help for usage.\n";
+        std::cout << "Error(s) occurred parsing arguments. Run again with --help for usage.\n";
         return -1;
     }
-    
+
+    // Valid args should have been popped, so any remaining args are invalid
+    if (args.GetArgCount())
+    {
+        std::cout << "Invalid syntax. Run again with --help for usage.\n";
+        return -1;
+    }
     
     // Run daemon and exit
     return opensdd.Run();
