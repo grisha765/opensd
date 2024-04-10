@@ -254,7 +254,7 @@ void ProfileIni::GetDeviceInfo( std::string key, uint16_t& rVid, uint16_t& rPid,
             gLog.Write( Log::WARN, "Format error: '" + key + "' expects 4 values.  Ignoring key and using defaults." );
     }
     else
-        gLog.Write( Log::WARN, "No device info for '" + key + "'.  Using defaults." );
+        gLog.Write( Log::INFO, "No device info for '" + key + "'.  Using defaults." );
 
     gLog.Write( Log::VERB, "    '" + key + "' device info set:" );
     gLog.Write( Log::VERB, "        Name: '" + rName + "'" );
