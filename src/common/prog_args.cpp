@@ -20,14 +20,14 @@
 
 #include "prog_args.hpp"
 #include "../common/log.hpp"
-
+#include <iostream>
 
 int ProgArgs::GetArgCount()
 {
-    if (mArgList.size() < 2)
-        return 0;
-
-    return mArgList.size() - 1;
+    for (auto& s : mArgList)
+        std::cout << " > " << s.c_str() << std::endl;
+        
+    return mArgList.size();
 }
 
 
@@ -45,9 +45,8 @@ int ProgArgs::FindOption( std::string shortOpt, std::string longOpt )
     int             count = 0;
     bool            terminated = false;
 
-
     // Return 0 if there are no program arguments
-    if (mArgList.size() < 2)
+    if (mArgList.size() < 1)
         return -1;
 
     // Return 0 if no short and long options specified
@@ -118,6 +117,9 @@ std::string ProgArgs::GetParam( int pos )
     if (pos < 0)
         return "";
 
+    // Next arg
+    ++pos;
+
     // No option after argument
     if ((unsigned int)pos >= mArgList.size())
         return "";
@@ -159,7 +161,9 @@ bool ProgArgs::HasOpt( std::string shortOpt, std::string longOpt, std::string& r
 
 bool ProgArgs::HasOpt( std::string shortOpt, std::string longOpt )
 {
-    return (FindOption( shortOpt, longOpt ) >= 0);
+    std::string     s;
+
+    return HasOpt( shortOpt, longOpt, s );
 }
 
 
@@ -180,30 +184,29 @@ bool ProgArgs::PopOpt( std::string shortOpt, std::string longOpt, std::string& r
     // Get option parameter if present
     rParam = GetParam( pos );
 
-    // Erase elements
+    // Erase param argument if present
     if (!rParam.empty())
     {
         try 
         {
-            mArgList.erase( mArgList.begin() + pos, mArgList.begin() + pos + 1 );
-        }
-        catch (...)
-        {
-            int e = errno;
-            gLog.Write( Log::ERROR, FUNC_NAME, "Caught exception while erasing vector elements: " + Err::GetErrnoString(e) );
-        }
-    }
-    else
-    {
-        try
-        {
-            mArgList.erase( mArgList.begin() + pos );
+            mArgList.erase( mArgList.begin() + pos + 1 );
         }
         catch (...)
         {
             int e = errno;
             gLog.Write( Log::ERROR, FUNC_NAME, "Caught exception while erasing vector element: " + Err::GetErrnoString(e) );
         }
+    }
+
+    // Erase opt argument
+    try
+    {
+        mArgList.erase( mArgList.begin() + pos );
+    }
+    catch (...)
+    {
+        int e = errno;
+        gLog.Write( Log::ERROR, FUNC_NAME, "Caught exception while erasing vector element: " + Err::GetErrnoString(e) );
     }
 
     return true;

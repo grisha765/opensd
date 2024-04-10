@@ -56,6 +56,7 @@ const std::string   HELP_BLOCK =
     "\n"
     "    -h --help                  Show this help message.\n"
     "    -v --version               Output version number and exit.\n"
+    "    -q --quiet                 Don't show program info.\n"
     "    -l --log-level <level>     Set minumum logging level.  Default: 'warn'\n"
     "                               Valid options are:\n"
     "                                 verbose, debug, info, warn, error\n"
@@ -108,8 +109,12 @@ int main( int argc, char **argv )
         ShowVersion();
         return 0;
     }
-    
-    ShowInfoLine();
+
+    // Suppress info output
+    if (!args.PopOpt( "q", "quiet" ))
+    {
+        ShowInfoLine();
+    }
     
     // CLI help
     if (args.HasOpt( "h", "help" ))
@@ -121,7 +126,7 @@ int main( int argc, char **argv )
     // Logging level
     if (args.PopOpt( "l", "log-level", opt_param ))
     {
-        std::vector<std::string>    levels = { "", "verb", "verbose", "debug", "info", "warn", "warning", "error" }; 
+        std::vector<std::string>    levels = { "verb", "verbose", "debug", "info", "warn", "warning", "error" }; 
         unsigned int                i = 0;
 
         // Check if level is set after option
@@ -133,36 +138,35 @@ int main( int argc, char **argv )
         
         for (auto& s : levels)
         {
-            if (s == opt_param)
+            if (opt_param == s)
                 break;
             ++i;
         }
-        
+
         switch (i)
         {
-            case 1: // verb
-            case 2: // verbose
+            case 0: // verb
+            case 1: // verbose
                 gLog.SetFilterLevel( Log::VERB );
             break;
             
-            case 3: // sebug
+            case 2: // debug
                 gLog.SetFilterLevel( Log::DEBUG);
             break;
             
-            case 4: // info
+            case 3: // info
                 gLog.SetFilterLevel( Log::INFO );
             break;
             
-            case 5: // warn
-            case 6: // warning
+            case 4: // warn
+            case 5: // warning
                 gLog.SetFilterLevel( Log::WARN );
             break;
             
-            case 7: // error
+            case 6: // error
                 gLog.SetFilterLevel( Log::ERROR );
             break;
-            
-            case 0: // nada
+
             default:  // Unknown
                 std::cout << "Invalid log-level parameter '" << opt_param.c_str() << "'. Run again with --help for usage.\n";
                 return -1;
@@ -180,9 +184,9 @@ int main( int argc, char **argv )
     // Startup profile override
     if (args.PopOpt( "p", "profile", opt_param ))
     {
-        if (!opt_param.empty())
+        if (opt_param.empty())
         {
-            std::cout << "Usage: opensdd --profile <profile name>\n";
+            std::cout << "Missing profile parameter. Run again with --help for usage.\n";
             return -1;
         }
 
@@ -201,7 +205,7 @@ int main( int argc, char **argv )
     // Valid args should have been popped, so any remaining args are invalid
     if (args.GetArgCount())
     {
-        std::cout << "Invalid syntax. Run again with --help for usage.\n";
+        std::cout << "Invalid syntax or unknown argument. Run again with --help for usage.\n";
         return -1;
     }
     
