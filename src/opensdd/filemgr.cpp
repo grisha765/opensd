@@ -474,6 +474,7 @@ std::filesystem::path FileMgr::GetProfileFilePath( std::string fileName )
 {
     namespace           fs = std::filesystem;
     fs::path            path;
+
     
     if (fileName.empty())
     {
@@ -495,4 +496,18 @@ std::filesystem::path FileMgr::GetProfileFilePath( std::string fileName )
     
     // return path to profile if found
     return path;
+}
+
+
+
+FileMgr::FileMgr()
+{
+    //
+}
+
+
+
+FileMgr::~FileMgr()
+{
+    //
 }

@@ -35,7 +35,7 @@ private:
     std::filesystem::path       mProfileDir;
     bool                        mIsConfigDirWritable;
     bool                        mIsProfileDirWritable;
-    
+
     bool                        IsInstalled();
     bool                        IsLocalBuild();
     bool                        HasUserHome();
@@ -44,13 +44,16 @@ private:
     int                         CopyUserConfigFile();
     int                         CreateUserProfileDir();
     int                         CopyUserProfileFiles();
-    
+
 public:
     int                         Init();
-    
+
     std::filesystem::path       GetConfigFilePath();
     std::vector<std::string>    GetProfileList();
     std::filesystem::path       GetProfileFilePath( std::string fileName );
+
+    FileMgr();
+    ~FileMgr();
 };
 
 

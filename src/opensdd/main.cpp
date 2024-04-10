@@ -52,13 +52,14 @@ const std::string   LICENSE_BLOCK =
 
 const std::string   HELP_BLOCK =
 {
-    "  Usage:\n"
+    "  Usage:  opensdd [options]\n"
     "\n"
-    "    -h    --help             Show this help message.\n"
-    "    -v    --version          Output version number and exit.\n"
-    "    -l    --log-level        Set minumum logging level.  Default: 'warn'\n"
-    "                             Valid options are:\n"
+    "    -h --help                  Show this help message.\n"
+    "    -v --version               Output version number and exit.\n"
+    "    -l --log-level <level>     Set minumum logging level.  Default: 'warn'\n"
+    "                               Valid options are:\n"
     "                                 verbose, debug, info, warn, error\n"
+    "    -p --profile <profile>     Force load a specific profile on startup.\b"
 };
 
 
@@ -158,6 +159,29 @@ int main( int argc, char **argv )
                 return -1;
             break;
         }
+    }
+
+    // Check for --list-profiles argument
+    if (args.HasOpt( "", "list-profiles" ))
+    {
+        // print list and exit
+        return opensdd.ListProfiles();
+    }
+
+    // Check for -p | --profile argument
+    if (args.HasOpt( "p", "profile" ))
+    {
+        std::string     profile_name;
+
+        profile_name = args.GetOptParam( "l", "log-level" );
+
+        if (!profile_name.length())
+        {
+            std::cout << "Usage: opensdd --profile <profile name>\n";
+            return -1;
+        }
+
+        opensdd.SetStartupProfile( profile_name );
     }
    
     // Exit if there were argument parsing errors

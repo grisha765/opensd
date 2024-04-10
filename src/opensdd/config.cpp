@@ -62,14 +62,17 @@ int Config::Load( std::filesystem::path configFile )
         return Err::INVALID_FORMAT;
     }
     
-    // Read values
-    val = mIni.GetVal( "Daemon", "Profile" );
-    if (!val.Count())
+    // Check if profile is overridden
+    if (!mProfileName.length())
     {
-        gLog.Write( Log::ERROR, "Config file is missing 'Profile' key." );
-        return Err::INVALID_FORMAT;
+        val = mIni.GetVal( "Daemon", "Profile" );
+        if (!val.Count())
+        {
+            gLog.Write( Log::ERROR, "Config file is missing 'Profile' key." );
+            return Err::INVALID_FORMAT;
+        }
+        mProfileName = val.FullString();
     }
-    mProfileName = val.FullString();
     
     val = mIni.GetVal( "Daemon", "AllowClients" );
     if (!val.Count())

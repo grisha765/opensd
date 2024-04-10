@@ -32,13 +32,17 @@ private:
     FileMgr                         mFileMgr;
     Config                          mConfig;
     Drivers::Gamepad::Driver*       mpGpDrv;
-    
-    int                             LoadProfile( std::string fileName );
 
+    bool                            DoesProfileExist( std::string profileName );
+    int                             LoadProfile( std::string fileName );
     int                             Startup();
     void                            Shutdown();
    
 public:
+    // Daemon config overrides
+    void                            SetStartupProfile( std::string profileName );
+
+    int                             ListProfiles();
     int                             Run();
     void                            Stop();
     

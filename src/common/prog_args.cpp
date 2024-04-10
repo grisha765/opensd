@@ -33,7 +33,7 @@ int ProgArgs::HasOpt( std::string shortOpt, std::string longOpt )
     if (mArgList.size() < 2)
         return 0;
 
-    // Return 0 if no short or long options specified
+    // Return 0 if no short and long options specified
     if ((shortOpt.empty()) && (longOpt.empty()))
     {
         gLog.Write( Log::DEBUG, FUNC_NAME, "No options specified." );

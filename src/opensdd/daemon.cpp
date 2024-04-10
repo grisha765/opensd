@@ -22,9 +22,9 @@
 #include "profile_ini.hpp"
 #include "../common/log.hpp"
 #include "../common/errors.hpp"
+#include <iostream>
 // Linux
 #include <signal.h>
-
 
 // Global flag to stop daemon
 bool gDaemonRunning = true;
@@ -98,18 +98,18 @@ int Daemon::Startup()
     signal( SIGTERM, sig_handler );
     signal( SIGKILL, sig_handler );
 
-    // Initialize file manager
-    gLog.Write( Log::INFO, "Initializing file manager..." );
-    result = mFileMgr.Init();
-    if (result != Err::OK)
-        return Err::INIT_FAILED;
-    
     // Load config.ini
     gLog.Write( Log::INFO, "Loading config file..." );
     result = mConfig.Load( mFileMgr.GetConfigFilePath() );
     if (result != Err::OK)
         return Err::INIT_FAILED;
-    
+
+    // Initialize file manager
+    gLog.Write( Log::INFO, "Initializing file manager..." );
+    result = mFileMgr.Init();
+    if (result != Err::OK)
+        return Err::INIT_FAILED;
+
     // Create gamepad driver object
     gLog.Write( Log::INFO, "Creating gamepad driver object..." );
     if (mpGpDrv != nullptr)
@@ -155,6 +155,43 @@ void Daemon::Shutdown()
     gDaemonRunning  = false;
 }
 
+
+
+void Daemon::SetStartupProfile( std::string profileName )
+{
+    mConfig.mProfileName = profileName;
+}
+
+
+int Daemon::ListProfiles()
+{
+    int                         result;
+    std::vector<std::string>    list;
+    
+    // Initialize file manager
+    gLog.Write( Log::INFO, "Initializing file manager..." );
+    result = mFileMgr.Init();
+    if (result != Err::OK)
+    {
+        gLog.Write( Log::ERROR, "Failed to initialize file manager..." );
+        return Err::INIT_FAILED;
+    }
+    
+    list = mFileMgr.GetProfileList();
+    if (!list.size())
+    {
+        gLog.Write( Log::ERROR, "No profiles found!" );
+        return Err::NOT_FOUND;
+    }
+
+    // std::cout << "Available profiles:" << std::endl;
+    for ( auto const& s : list )
+    {
+        std::cout << s << std::endl;
+    }
+
+    return Err::OK;    
+}
 
 
 int Daemon::Run()
