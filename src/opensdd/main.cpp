@@ -127,6 +127,7 @@ int main( int argc, char **argv )
     Daemon                      opensdd;
     ProgArgs                    args( arg_list );
     std::string                 opt_param;
+    int                         result;
 
     // No longer needed
     arg_list.clear();
@@ -240,10 +241,18 @@ int main( int argc, char **argv )
         std::cout << "Invalid syntax or unknown argument. Run again with --help for usage.\n";
         return -1;
     }
+
+    std::cout << "--------Start---------" << std::endl;
     
     // Run daemon and exit
-    return opensdd.Run();
+    result = opensdd.Run();
+    
+    std::cout << "--------Stop----------" << std::endl;
 
     // Give runner thread time to finish construction
     usleep(500000);
+
+    std::cout << "-------Waited---------" << std::endl;
+
+    return result;
 }
