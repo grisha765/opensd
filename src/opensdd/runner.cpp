@@ -147,6 +147,8 @@ Runner::Runner()
 
 Runner::~Runner()
 {
+    gLog.Write( Log::VERB, "Shutting down runner daemon..." );
+    
     mIsRunning = false;
     mThread.join();
     
@@ -165,4 +167,6 @@ Runner::~Runner()
         for (auto& i : mProcList)
             waitpid( i.pid, &status, 0 );
     }
+    
+    gLog.Write( Log::VERB, "Runner daemon terminated." );
 }
