@@ -26,6 +26,7 @@
 #include "../../uinput.hpp"
 #include "hid_reports.hpp"
 #include "device_state.hpp"
+#include "liz_timer.hpp"
 #include "profile.hpp"
 
 
@@ -59,7 +60,7 @@ namespace Drivers::Gamepad
         L_TRIGG,
         R_TRIGG
     };
-    
+
     // Gamepad driver class
     class Driver : public Drivers::DrvBase
     {
@@ -73,9 +74,10 @@ namespace Drivers::Gamepad
         std::atomic<bool>           mLizardMode;
         std::thread                 mLizHandlerThread;
         std::mutex                  mPollMutex;
+        LizTimer                    mLizTimer;
         uint64_t                    mProfSwitchDelay;       // In milliseconds
         uint64_t                    mProfSwitchTimestamp;   // In milliseconds
-        
+                
         // HID functions
         int                         OpenHid();
         // SDC reports
@@ -83,6 +85,7 @@ namespace Drivers::Gamepad
         int                         WriteRegister( uint8_t reg, uint16_t value );
         int                         ClearRegister( uint8_t reg );
         int                         HandleInputReport( const std::vector<uint8_t>& rReport );
+        void                        HandleLizardMode();
         // Uinput
         int                         CreateUinputDevs();
         void                        DestroyUinputDevs();
@@ -92,8 +95,6 @@ namespace Drivers::Gamepad
         void                        Translate();
         void                        Flush();
         int                         Poll();
-        // Threaded handlers
-        void                        ThreadedLizardHandler();
         
     public:
         // Configuration functions

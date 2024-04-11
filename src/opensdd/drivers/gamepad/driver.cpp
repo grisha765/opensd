@@ -31,7 +31,6 @@
 #include <bitset>
 #include <cmath>
 #include <iostream>
-#include <chrono>
 
 
 int Drivers::Gamepad::Driver::OpenHid()
@@ -170,6 +169,44 @@ int Drivers::Gamepad::Driver::HandleInputReport( const std::vector<uint8_t>& rRe
     }
 
     return Err::OK;
+}
+
+
+
+void Drivers::Gamepad::Driver::HandleLizardMode()
+{
+    std::vector<uint8_t>    buff;
+    int                     result;
+
+    // Strangely, the only known method to disable keyboard emulation only does
+    // so for a few seconds, whereas disabling the mouse is permanent until
+    // re-enabled.  This means we have to run a separate thread which wakes up
+    // every couple seconds and disabled the keyboard again using the
+    // CLEAR_MAPPINGS report.  If there's a better way to do this, I'd love to
+    // know about it.  Looking at you, Valve.
+
+    using namespace v100;
+
+    // lizard mode is disabled and timer is up
+    if ((!mLizardMode) && (mLizTimer.Ready()))
+    {
+        if (mHid.IsOpen())
+        {
+            // Initialize report
+            buff.resize( 64, 0 );
+            buff.at(0) = ReportType::CLEAR_MAPPINGS;
+
+            // Write report
+            result = mHid.Write( buff );
+            if (result != Err::OK)
+                gLog.Write( Log::DEBUG, FUNC_NAME, "Failed to write gamepad device." );
+        }
+        else
+            gLog.Write( Log::DEBUG, FUNC_NAME, "Device is not open." );
+
+        // Reset timer
+        mLizTimer.Reset();
+    }
 }
 
 
@@ -1002,47 +1039,6 @@ int Drivers::Gamepad::Driver::Poll()
 
 
 
-void Drivers::Gamepad::Driver::ThreadedLizardHandler()
-{
-    std::vector<uint8_t>    buff;
-    int                     result;
-
-    // Strangely, the only known method to disable keyboard emulation only does
-    // so for a few seconds, whereas disabling the mouse is permanent until
-    // re-enabled.  This means we have to run a separate thread which wakes up
-    // every couple seconds and disabled the keyboard again using the
-    // CLEAR_MAPPINGS report.  If there's a better way to do this, I'd love to
-    // know about it.  Looking at you, Valve.
-
-    using namespace v100;
-
-    // Initialize report
-    buff.resize( 64, 0 );
-    buff.at(0) = ReportType::CLEAR_MAPPINGS;
-
-    // Loop thread while driver is running
-    while (mRunning)
-    {
-        // Sleep for a bit
-        usleep( LIZARD_SLEEP_SEC * 1000000 );   // in microseconds
-
-        // If lizard mode is still false, send another CLEAR_MAPPINGS report
-        if (!mLizardMode)
-        {
-            if (!mHid.IsOpen())
-                gLog.Write( Log::DEBUG, FUNC_NAME, "Device is not open." );
-            else
-            {
-                result = mHid.Write( buff );
-                if (result != Err::OK)
-                    gLog.Write( Log::DEBUG, FUNC_NAME, "Failed to write gamepad device." );
-            }
-        }
-    }
-}
-
-
-
 int Drivers::Gamepad::Driver::SetLizardMode( bool enabled )
 {
     int                     result;
@@ -1262,22 +1258,16 @@ void Drivers::Gamepad::Driver::Run()
     mRunning    = true;
     mLizardMode = false;
     
-    // Run this function as a separate thread
-    mLizHandlerThread = std::thread( &Drivers::Gamepad::Driver::ThreadedLizardHandler, this );
-    
     // Loop while driver is running
     gLog.Write( Log::DEBUG, FUNC_NAME, "Gamepad driver is now running..." );
     while (mRunning)
     {
         Poll();
-        
+        HandleLizardMode();
+                
         // Polling interval is about 4ms so we can sleep a little
         usleep( 250 );
     }
-    
-    // Rejoin threads after driver exits
-    if (mLizHandlerThread.joinable())
-        mLizHandlerThread.join();
 }
 
 
@@ -1305,9 +1295,6 @@ Drivers::Gamepad::Driver::Driver()
 
 Drivers::Gamepad::Driver::~Driver()
 {
-    if (mLizHandlerThread.joinable())
-        mLizHandlerThread.join();
-
     SetLizardMode( true );
 
     DestroyUinputDevs();

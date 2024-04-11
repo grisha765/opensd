@@ -23,11 +23,13 @@
 
 // Needed for error codes
 #include "../../common/errors.hpp"
+#include "../../common/log.hpp"
 // C++
 #include <atomic>
 #include <thread>
 #include <string>
 #include <queue>
+#include <mutex>
 
 
 namespace Drivers
@@ -75,7 +77,10 @@ namespace Drivers
 
         void                                Stop()
         {
+            gLog.Write( Log::VERB, FUNC_NAME, "Signaling driver thread to stop..." );
             mRunning = false;
+            
+            gLog.Write( Log::VERB, FUNC_NAME, "Waiting for driver thread to exit..." );
             mThread.join();
         }
 

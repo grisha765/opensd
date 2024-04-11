@@ -9,6 +9,7 @@
 ### Changed
  - Simplified and improved ProgArgs class
  - Moved a few functions around
+ - Moved lizard mode suppression to main driver thread to reduce complexity
 
 ### Fixed
  - Fixed some minor bugs

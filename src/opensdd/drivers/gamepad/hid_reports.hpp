@@ -59,10 +59,6 @@ namespace Drivers::Gamepad
         const double    PAD_FORCE_MULT      = 1.0 / PAD_FORCE_MAX;
         const double    TRIGG_AXIS_MULT     = 1.0 / TRIGG_MAX;
         
-        // Lengh of time for the thread to sleep before keyboard emulation 
-        // has to be disabled again with a CLEAR_MAPPINGS report.
-        const double    LIZARD_SLEEP_SEC    = 2.0;
-        
         namespace ReportType
         {
             enum
