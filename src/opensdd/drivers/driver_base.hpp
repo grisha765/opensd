@@ -79,9 +79,12 @@ namespace Drivers
         {
             gLog.Write( Log::VERB, FUNC_NAME, "Signaling driver thread to stop..." );
             mRunning = false;
-            
-            gLog.Write( Log::VERB, FUNC_NAME, "Waiting for driver thread to exit..." );
-            mThread.join();
+
+            if (mThread.joinable())
+            {
+                gLog.Write( Log::VERB, FUNC_NAME, "Waiting for driver thread to exit..." );
+                mThread.join();
+            }
         }
 
         bool                                IsRunning()
