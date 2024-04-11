@@ -166,7 +166,7 @@ int main( int argc, char **argv )
         // Check if level is set after option
         if (opt_param.empty())
         {
-            std::cout << "Missing log-level parameter. Run again with --help for usage.\n";
+            std::cout << "Missing log-level parameter. Run again with --help for usage." << std::endl;
             return -1;
         }
         
@@ -202,7 +202,7 @@ int main( int argc, char **argv )
             break;
 
             default:  // Unknown
-                std::cout << "Invalid log-level parameter '" << opt_param.c_str() << "'. Run again with --help for usage.\n";
+                std::cout << "Invalid log-level parameter '" << opt_param.c_str() << "'. Run again with --help for usage." << std::endl;
                 return -1;
             break;
         }
@@ -219,7 +219,7 @@ int main( int argc, char **argv )
     {
         if (opt_param.empty())
         {
-            std::cout << "Missing profile parameter. Run again with --help for usage.\n";
+            std::cout << "Missing profile parameter. Run again with --help for usage." << std::endl;
             return -1;
         }
 
@@ -231,28 +231,17 @@ int main( int argc, char **argv )
     // Exit if there were argument parsing errors
     if (args.GetErrorCount())
     {
-        std::cout << "Error(s) occurred parsing arguments. Run again with --help for usage.\n";
+        std::cout << "Error(s) occurred parsing arguments. Run again with --help for usage." << std::endl;
         return -1;
     }
 
     // Valid args should have been popped, so any remaining args are invalid
     if (args.GetArgCount())
     {
-        std::cout << "Invalid syntax or unknown argument. Run again with --help for usage.\n";
+        std::cout << "Invalid syntax or unknown argument. Run again with --help for usage." << std::endl;
         return -1;
     }
-
-    std::cout << "--------Start---------" << std::endl;
-    
+   
     // Run daemon and exit
-    result = opensdd.Run();
-    
-    std::cout << "--------Stop----------" << std::endl;
-
-    // Give runner thread time to finish construction
-    usleep(500000);
-
-    std::cout << "-------Waited---------" << std::endl;
-
-    return result;
+    return opensdd.Run();
 }

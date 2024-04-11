@@ -19,7 +19,7 @@
 ####################################################################################################
 cmake_minimum_required( VERSION 3.10 )
 
-project( OpenSD VERSION 0.52 )
+project( OpenSD VERSION 0.53 )
 
 # Compiler settings
 set( CMAKE_CXX_STANDARD 20 )
@@ -69,7 +69,7 @@ file( GLOB OPENSD_GUI_SRC
 
 # OpenSD data files
 file( GLOB OPENSD_CONFIG_FILE "data/config/config.ini" )
-file( GLOB OPENSD_PROFILE_FILES "data/profiles/*.profile" )
+file( GLOB OPENSD_PROFILE_FILES "data/profiles/*" )
 
 # OpenSD documentation files
 file( GLOB OPENSD_MAN1_FILES "doc/opensdd.1.gz" )

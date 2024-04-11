@@ -4,15 +4,17 @@
 ### Added
  - Daemon command line option to override profile when starting up
  - Daemon command line option to list all available profiles
- - Improved various debug messages
+ - Added and improved various debug messages
 
 ### Changed
+ - Removed .profile "extension" from default profile filenames.  File extensions are not checked anyway, so less typing needed.
  - Simplified and improved ProgArgs class
  - Moved a few functions around
  - Moved lizard mode suppression to main driver thread to reduce complexity
 
 ### Fixed
- - Fixed some minor bugs
+ - Fixed bug where terminating gamepad driver before starting thread resulted in abnormal shutdown
+ - Fixed some minor bugs and typos
 
 
 ## [v0.52]  2024/04/08
