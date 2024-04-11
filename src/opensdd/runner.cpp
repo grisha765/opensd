@@ -75,7 +75,7 @@ void Runner::Daemon()
     }
     
     // Done
-    gLog.Write( Log::VERB, FUNC_NAME, "Exiting wait() loop." );
+    gLog.Write( Log::VERB, FUNC_NAME, "Exiting loop." );
 }
 
 
@@ -144,6 +144,7 @@ void Runner::Start()
     std::lock_guard<std::mutex>     lock( mLoopMutex ); 
     if (!mIsRunning)
     {
+        mIsRunning = true;
         gLog.Write( Log::VERB, FUNC_NAME, "Starting runner thread..." );
         mThread = std::thread( &Runner::Daemon, this );
     }
@@ -155,27 +156,33 @@ void Runner::Start()
 
 void Runner::Stop()
 {
-    gLog.Write( Log::VERB, "Shutting down runner daemon..." );
-
-    std::lock_guard<std::mutex>     lock( mLoopMutex );
-    mIsRunning = false;
-
-    mThread.join();
-
-    if (!mProcList.empty())
+    gLog.Write( Log::VERB, FUNC_NAME, "Shutting down runner daemon..." );
+    
+    if (mThread.joinable())
     {
-        std::string     str;
-        int             status;
-        
-        for (auto& i : mProcList)
-            str += std::to_string(i.pid) + " ";
-        
-        gLog.Write( Log::DEBUG, "Child PIDs: " + str + " are still running." );
-        gLog.Write( Log::INFO, "Waiting for child process(es) to exit..." );
-        
-        // Wait for all child processes to exit
-        for (auto& i : mProcList)
-            waitpid( i.pid, &status, 0 );
+        // Signal thread to exit
+        std::lock_guard<std::mutex>     lock( mLoopMutex );
+        mIsRunning = false;
+
+        // Wait for daemon thread
+        mThread.join();
+
+        // Wait for processes to exit
+        if (!mProcList.empty())
+        {
+            std::string     str;
+            int             status;
+            
+            for (auto& i : mProcList)
+                str += std::to_string(i.pid) + " ";
+            
+            gLog.Write( Log::DEBUG, "Child PIDs: " + str + " are still running." );
+            gLog.Write( Log::INFO, "Waiting for child process(es) to exit..." );
+            
+            // Wait for all child processes to exit
+            for (auto& i : mProcList)
+                waitpid( i.pid, &status, 0 );
+        }
     }
     
     gLog.Write( Log::VERB, "Runner daemon terminated." );

@@ -110,9 +110,6 @@ int Daemon::Startup()
     if (result != Err::OK)
         return Err::INIT_FAILED;
 
-    // Start runner daemon
-    gRunner.Start();
-
     // Create gamepad driver object
     gLog.Write( Log::INFO, "Creating gamepad driver object..." );
     if (mpGpDrv != nullptr)
@@ -135,6 +132,9 @@ int Daemon::Startup()
     result = LoadProfile( mConfig.mProfileName );
     if (result != Err::OK)
         return Err::CANNOT_OPEN;
+
+    // Start runner daemon
+    gRunner.Start();
  
     // Start threaded drivers
     gLog.Write( Log::INFO, "Starting gamepad driver..." );
