@@ -38,10 +38,9 @@ private:
         uint32_t            bid;    // binding ID
     };
     
-    std::atomic<bool>       mIsRunning;
+    std::atomic<bool>       mStop;
     std::thread             mThread;
     std::mutex              mCmdMutex;
-    std::mutex              mLoopMutex;
     std::vector<ProcInfo>   mProcList;
     
     void                    Daemon();

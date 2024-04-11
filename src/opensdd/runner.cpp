@@ -38,12 +38,11 @@ void Runner::Daemon()
         // Don't need to check too frequently
         usleep( 100000 );
 
-        std::lock_guard<std::mutex>     loop_lock( mLoopMutex );
-        if (!mIsRunning)
-            break;            
+        if (mStop)
+            break;
 
         // Lock access to ProcList since Exec will be called by other threads
-        std::lock_guard<std::mutex>     cmd_lock( mCmdMutex );
+        std::lock_guard<std::mutex>     lock( mCmdMutex );
         if (mProcList.size())
         {
             // Loop through list of PIDs and delete entries which have 
@@ -83,8 +82,8 @@ void Runner::Daemon()
 int Runner::Exec( std::string command, uint32_t bindingId )
 {
     int             result;
-    
-    if (!mIsRunning)
+
+    if (!mThread.joinable())
     {
         gLog.Write( Log::ERROR, "Runner thread has not been started." );
         return Err::NOT_INITIALIZED;
@@ -141,10 +140,9 @@ int Runner::Exec( std::string command, uint32_t bindingId )
 
 void Runner::Start()
 {
-    std::lock_guard<std::mutex>     lock( mLoopMutex ); 
-    if (!mIsRunning)
+    if (!mThread.joinable())
     {
-        mIsRunning = true;
+        mStop = false;
         gLog.Write( Log::VERB, FUNC_NAME, "Starting runner thread..." );
         mThread = std::thread( &Runner::Daemon, this );
     }
@@ -160,10 +158,13 @@ void Runner::Stop()
     
     if (mThread.joinable())
     {
+        gLog.Write( Log::VERB, FUNC_NAME, "Daemon thread is joinable." );
+        
         // Signal thread to exit
-        std::lock_guard<std::mutex>     lock( mLoopMutex );
-        mIsRunning = false;
+        mStop = true;
 
+        gLog.Write( Log::VERB, FUNC_NAME, "Waiting for daemon thread to exit..." );
+        
         // Wait for daemon thread
         mThread.join();
 
@@ -172,7 +173,7 @@ void Runner::Stop()
         {
             std::string     str;
             int             status;
-            
+
             for (auto& i : mProcList)
                 str += std::to_string(i.pid) + " ";
             
@@ -183,16 +184,18 @@ void Runner::Stop()
             for (auto& i : mProcList)
                 waitpid( i.pid, &status, 0 );
         }
+        else
+            gLog.Write( Log::VERB, FUNC_NAME, "No processess to wait for." );
     }
     
-    gLog.Write( Log::VERB, "Runner daemon terminated." );
+    gLog.Write( Log::VERB, FUNC_NAME, "Runner daemon terminated." );
 }
 
 
 
 Runner::Runner()
 {
-    mIsRunning = false;
+    mStop = true;
 }
 
 
