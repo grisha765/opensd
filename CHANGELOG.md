@@ -1,6 +1,20 @@
 # OpenSD changelog
 
-## [v0.52]  2023/04/08
+## [v0.53]  2024/04/11
+### Added
+ - Daemon command line option to override profile when starting up
+ - Daemon command line option to list all available profiles
+ - Improved various debug messages
+
+### Changed
+ - Simplified and improved ProgArgs class
+ - Moved a few functions around
+
+### Fixed
+ - Fixed some minor bugs
+
+
+## [v0.52]  2024/04/08
 ### Changed
  - Improved logging when parsing DeviceInfo of profiles
  - Updated user documentation for [Touchpads] profile section

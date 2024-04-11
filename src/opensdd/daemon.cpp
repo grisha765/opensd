@@ -147,10 +147,16 @@ int Daemon::Startup()
 
 void Daemon::Shutdown()
 {
+    gLog.Write( Log::VERB, FUNC_NAME, "Shutting down..." );
+    
     // Stop gamepad driver thread
     if (mpGpDrv != nullptr)
+    {
+        gLog.Write( Log::VERB, FUNC_NAME, "Stopping gamepad driver thread..." );
         mpGpDrv->Stop();
-    
+    }
+
+    gLog.Write( Log::VERB, FUNC_NAME, "Deleting gamepad driver object..." );
     if (mpGpDrv != nullptr)
         delete mpGpDrv;
         
@@ -158,6 +164,8 @@ void Daemon::Shutdown()
     gDaemonRunning  = false;
 
     gRunner.Stop();
+    
+    gLog.Write( Log::VERB, FUNC_NAME, "Shutdown complete." );
 }
 
 

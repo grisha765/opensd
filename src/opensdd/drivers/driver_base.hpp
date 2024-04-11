@@ -94,8 +94,10 @@ namespace Drivers
         {
             std::lock_guard<std::mutex> lock( mMsgMutex );
             Message         msg = { .type = MsgType::NONE, .msg = "", .val = 0 };
+
             if (mMsgQueue.empty())
                 return msg;
+
             msg = mMsgQueue.front();
             mMsgQueue.pop();
             return msg;

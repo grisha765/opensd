@@ -1276,7 +1276,8 @@ void Drivers::Gamepad::Driver::Run()
     }
     
     // Rejoin threads after driver exits
-    mLizHandlerThread.join();
+    if (mLizHandlerThread.joinable())
+        mLizHandlerThread.join();
 }
 
 
@@ -1304,6 +1305,9 @@ Drivers::Gamepad::Driver::Driver()
 
 Drivers::Gamepad::Driver::~Driver()
 {
+    if (mLizHandlerThread.joinable())
+        mLizHandlerThread.join();
+
     SetLizardMode( true );
 
     DestroyUinputDevs();
