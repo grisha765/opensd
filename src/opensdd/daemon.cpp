@@ -20,6 +20,7 @@
 
 #include "daemon.hpp"
 #include "profile_ini.hpp"
+#include "runner.hpp"
 #include "../common/log.hpp"
 #include "../common/errors.hpp"
 // Linux
@@ -109,6 +110,9 @@ int Daemon::Startup()
     if (result != Err::OK)
         return Err::INIT_FAILED;
 
+    // Start runner daemon
+    gRunner.Start();
+
     // Create gamepad driver object
     gLog.Write( Log::INFO, "Creating gamepad driver object..." );
     if (mpGpDrv != nullptr)
@@ -152,6 +156,8 @@ void Daemon::Shutdown()
         
     mpGpDrv         = nullptr;
     gDaemonRunning  = false;
+
+    gRunner.Stop();
 }
 
 

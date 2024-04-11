@@ -32,16 +32,18 @@ void Runner::Daemon()
     int             result;
     int             status;
     
-    gLog.Write( Log::VERB, FUNC_NAME, "Starting runner thread." );
-    
     // Loop this thread
-    while (mIsRunning)
+    while (true)
     {
         // Don't need to check too frequently
         usleep( 100000 );
-        
+
+        std::lock_guard<std::mutex>     loop_lock( mLoopMutex );
+        if (!mIsRunning)
+            break;            
+
         // Lock access to ProcList since Exec will be called by other threads
-        std::lock_guard<std::mutex>     lock( mCmdMutex );
+        std::lock_guard<std::mutex>     cmd_lock( mCmdMutex );
         if (mProcList.size())
         {
             // Loop through list of PIDs and delete entries which have 
@@ -137,21 +139,29 @@ int Runner::Exec( std::string command, uint32_t bindingId )
 
 
 
-Runner::Runner()
+void Runner::Start()
 {
-    mIsRunning = true;
-    mThread = std::thread( &Runner::Daemon, this );
+    std::lock_guard<std::mutex>     lock( mLoopMutex ); 
+    if (!mIsRunning)
+    {
+        gLog.Write( Log::VERB, FUNC_NAME, "Starting runner thread..." );
+        mThread = std::thread( &Runner::Daemon, this );
+    }
+    else
+        gLog.Write( Log::ERROR, "Cannot start runner daemon: Daemon is already running." );
 }
 
 
 
-Runner::~Runner()
+void Runner::Stop()
 {
     gLog.Write( Log::VERB, "Shutting down runner daemon..." );
-    
+
+    std::lock_guard<std::mutex>     lock( mLoopMutex );
     mIsRunning = false;
+
     mThread.join();
-    
+
     if (!mProcList.empty())
     {
         std::string     str;
@@ -169,4 +179,18 @@ Runner::~Runner()
     }
     
     gLog.Write( Log::VERB, "Runner daemon terminated." );
+}
+
+
+
+Runner::Runner()
+{
+    mIsRunning = false;
+}
+
+
+
+Runner::~Runner()
+{
+    Stop();
 }

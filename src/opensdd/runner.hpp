@@ -41,12 +41,16 @@ private:
     std::atomic<bool>       mIsRunning;
     std::thread             mThread;
     std::mutex              mCmdMutex;
+    std::mutex              mLoopMutex;
     std::vector<ProcInfo>   mProcList;
     
     void                    Daemon();
     
 public:
     int                 Exec( std::string command, uint32_t bindingId );
+
+    void                Start();
+    void                Stop();
     
     Runner();
     ~Runner();
