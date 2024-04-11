@@ -174,10 +174,12 @@ int Daemon::Run()
     int         result;
     
     gLog.Write( Log::INFO, "Starting up..." );
+
     result = Startup();
     if (result != Err::OK)
     {
         gLog.Write( Log::ERROR, "Initialization failure.  Aborting." );
+        Shutdown();
         return result;
     }
 
