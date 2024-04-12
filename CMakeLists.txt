@@ -144,8 +144,8 @@ add_custom_command( TARGET "${OPENSD_DAEMON_BIN}" POST_BUILD
 
 # Delete old profiles in system-wide data directory
 if( OPT_INSTALL_DELETE_OLD_PROFILES )
-    file( GLOB OLD_INSTALLED_PROFILE_FILES "${INSTALL_DATA_PROFILE_DIR}/*" )
-    install( CODE "execute_process( COMMAND ${CMAKE_COMMAND} -E remove ${OLD_INSTALLED_PROFILE_FILES} )" )
+    file( GLOB OLD_INSTALLED_PROFILE_FILES "${CMAKE_INSTALL_PREFIX}/${INSTALL_DATA_PROFILE_DIR}/*" )
+    install( CODE "execute_process( COMMAND ${CMAKE_COMMAND} -E rm ${OLD_INSTALLED_PROFILE_FILES}" )
 endif( OPT_INSTALL_DELETE_OLD_PROFILES )
 
 # Data files to be installed
