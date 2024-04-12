@@ -1,20 +1,33 @@
 # OpenSD changelog
 
-## [v0.53]  2024/04/11
+## [v0.53]  2024/04/13
 ### Added
- - Daemon command line option to override profile when starting up
- - Daemon command line option to list all available profiles
+ - Added daemon command line option to override profile when starting up
+ - Added daemon command line option to list all available profiles
+ - Added daemon command line option to suppress program info to stdout
  - Added and improved various debug messages
+ - Added option to install script to delete old profiles in system-wide dir
 
 ### Changed
  - Removed .profile "extension" from default profile filenames.  File extensions are not checked anyway, so less typing needed.
  - Simplified and improved ProgArgs class
  - Moved a few functions around
  - Moved lizard mode suppression to main driver thread to reduce complexity
+ - Updated help message
 
 ### Fixed
  - Fixed bug where terminating gamepad driver before starting thread resulted in abnormal shutdown
  - Fixed some minor bugs and typos
+
+### Notes
+   From this point on, gamepad profile files will no longer have a .profile suffix.  The installer will 
+   automatically remove the any old profiles in the INSTALL_DATA_PROFILE_DIR (usually /usr/local/share/opensd/profiles 
+   or /usr/share/opensd/profiles).  I don't want to touch user's .config/opensd/profiles dir, so it's up to you to keep
+   your own profile dir clean.
+
+   If you build and run opensd from source, without installing, you may have old leftover profiles in that directory
+   which may keep being used to populate your ~/.config/opensd/opensd directory.  In which case you might want to 
+   re-install or manually delete those old files.
 
 
 ## [v0.52]  2024/04/08

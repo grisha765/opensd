@@ -127,7 +127,6 @@ int main( int argc, char **argv )
     Daemon                      opensdd;
     ProgArgs                    args( arg_list );
     std::string                 opt_param;
-    int                         result;
 
     // No longer needed
     arg_list.clear();

@@ -106,11 +106,11 @@ option( BUILD_GUI "Build OpenSD GUI tool (opensd-gui)" FALSE )
 option( OPT_INSTALL_UDEV_RULE "Install udev rules" TRUE )
 option( OPT_INSTALL_SYSD_SERVICE "Install systemd user service" TRUE )
 option( OPT_INSTALL_DOCUMENTATION "Install user documentation" TRUE )
+option( OPT_INSTALL_DELETE_OLD_PROFILES "Delete old profiles profiles in INSTALL_DATA_DIR" TRUE )
 option( OPT_POSTINSTALL "Run post-install scripts" TRUE )
 option( OPT_POSTINSTALL_ADD_GROUP "Post-install: Add 'opensd' group and make current user a member" TRUE )
 option( OPT_POSTINSTALL_RELOAD_UDEV "Post-install: Reload udev rules" TRUE )
 option( OPT_POSTINSTALL_RELOAD_SYSD "Post-install: Reload user-level systemd rules" TRUE )
-
 # Build driver daemon binary
 if( BUILD_DAEMON )
     add_executable( "${OPENSD_DAEMON_BIN}" "${OPENSD_DAEMON_SRC}" )
@@ -142,6 +142,12 @@ add_custom_command( TARGET "${OPENSD_DAEMON_BIN}" POST_BUILD
 add_custom_command( TARGET "${OPENSD_DAEMON_BIN}" POST_BUILD 
                     COMMAND ${CMAKE_COMMAND} -E copy ${OPENSD_PROFILE_FILES} "${BUILD_DATA_PROFILE_DIR}" )
 
+# Delete old profiles in system-wide data directory
+if( OPT_INSTALL_DELETE_OLD_PROFILES )
+    file( GLOB OLD_INSTALLED_PROFILE_FILES "${INSTALL_DATA_PROFILE_DIR}/*" )
+    install( CODE "execute_process( COMMAND ${CMAKE_COMMAND} -E remove ${OLD_INSTALLED_PROFILE_FILES} )" )
+endif( OPT_INSTALL_DELETE_OLD_PROFILES )
+
 # Data files to be installed
 install( FILES ${OPENSD_CONFIG_FILE} DESTINATION "${INSTALL_DATA_CONFIG_DIR}" )
 install( FILES ${OPENSD_PROFILE_FILES} DESTINATION "${INSTALL_DATA_PROFILE_DIR}" )
@@ -154,7 +160,6 @@ endif( OPT_INSTALL_SYSD_SERVICE )
 # Install user documentation if enabled
 if( OPT_INSTALL_DOCUMENTATION )
     install( FILES "${OPENSD_MAN1_FILES}" DESTINATION "${MANPAGE_DIR}/man1/" )
-    #install( FILES "${OPENSD_MAN5_FILES}" DESTINATION "${MANPAGE_DIR}/man5/" )
     install( FILES ${OPENSD_DOC_FILES} DESTINATION "${DOCUMENTATION_DIR}" )
 endif( OPT_INSTALL_DOCUMENTATION )
 
@@ -180,4 +185,5 @@ if( OPT_POSTINSTALL )
     if( OPT_POSTINSTALL_RELOAD_SYSD )
         install( CODE "execute_process( COMMAND ${PROJECT_SOURCE_DIR}/scripts/reload_sysd.sh )" )
     endif( OPT_POSTINSTALL_RELOAD_SYSD )
+
 endif( OPT_POSTINSTALL )
