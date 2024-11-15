@@ -58,7 +58,7 @@ jobs:
       run: |
         cat > ${{ env.APP_DIR }}/AppRun << EOF
         #!/bin/bash
-        exec "$APPDIR/usr/bin/opensdd" "$@"
+        exec "\$APPDIR/usr/bin/opensdd" "$@"
         EOF
         chmod +x ${{ env.APP_DIR }}/AppRun
 
