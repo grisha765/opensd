@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=OpenSD
+Exec=opensdd
+Icon=opensd
+Type=Application
+Categories=Utility;
