@@ -39,15 +39,16 @@ jobs:
       run: sudo apt install build-essential cmake libfuse2 libfuse-dev man-db pkg-config
 
     - name: Configure build with cmake
-      run: cmake -S . -Bbuild -DOPT_POSTINSTALL=FALSE -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local
+      run: cmake -S . -Bbuild -DOPT_POSTINSTALL=FALSE -DCMAKE_BUILD_TYPE=Release
 
     - name: Build with cmake
       run: cmake --build build
 
     - name: Install on AppImage dir
       run: |
-        mkdir -p ${{ env.APP_DIR }}
-        cmake --build build --target install DESTDIR=$PWD/${{ env.APP_DIR }}
+        mkdir -p ${{ env.APP_DIR }}/usr/bin
+        mv build ${{ env.APP_DIR }}/data
+        #cmake --build build --target install DESTDIR=$PWD/${{ env.APP_DIR }}
 
     - name: Copy files
       run: |
@@ -58,7 +59,7 @@ jobs:
       run: |
         cat > ${{ env.APP_DIR }}/AppRun << EOF
         #!/bin/bash
-        exec "\$APPDIR/usr/local/bin/opensdd" "\$@"
+        exec env --chdir "\$APPDIR/data" "\$APPDIR/data/opensdd" "\$@"
         EOF
         chmod +x ${{ env.APP_DIR }}/AppRun
 
